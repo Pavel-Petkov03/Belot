@@ -1,7 +1,7 @@
 import pygame
 
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 800
+WINDOW_WIDTH = 1000
+WINDOW_HEIGHT = 1000
 FPS = 30
 
 
@@ -19,16 +19,15 @@ class Card(pygame.sprite.Sprite):
 
 
 class AnnounceRect(pygame.sprite.Sprite):
-    def __init__(self, x_pos, y_pos, image, rect_title):
+    def __init__(self, x_pos, y_pos, width, height, image, rect_title):
         pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(x_pos, y_pos, 200, 100)
+        self.rect = pygame.Rect(x_pos, y_pos, width, height)
         self.rect_title = rect_title
         self.image = pygame.image.load(image)
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
     def draw(self, win):
         win.blit(self.image, self.rect)
-
 
 
 def run_game():
@@ -49,17 +48,23 @@ def run_game():
                 run = False
             if event.type == pygame.MOUSEBUTTONUP:
                 print(pygame.mouse.get_pos())
-                print(r.left, r.top, r.width, r.height)
+                print(r.left, r.top, r.width, r.height, r.x, r.right, r.bottom)
         sprites.update()
 
         window.fill("black")
         pygame.draw.rect(window, "green", r)
-        for announce_square in range(200, 500, 75):
-            a = AnnounceRect(r.left, announce_square, "random.jpg", "")
-            a.draw(window)
-        for announce_square in range(200, 500, 75):
-            a = AnnounceRect(r.left+r.left, announce_square, "random.jpg", "")
-            a.draw(window)
+        for x_axis in range(2):
+            for y_axis in range(4):
+                middle_x = (r.width / 2)
+                divided_y_axis = r.height / 16*3
+                y_pos = r.top + divided_y_axis * y_axis
+                x_pos = r.left + middle_x * x_axis
+
+                rect = AnnounceRect(x_pos, y_pos, middle_x, divided_y_axis, "random.jpg", "")
+                rect.draw(window)
+
+        b = AnnounceRect(r.left,  r.top+r.height/4*3, r.width, r.height/4, "random.jpg", "")
+        b.draw(window)
         sprites.draw(window)
         pygame.display.flip()
 
