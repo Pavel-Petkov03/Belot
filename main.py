@@ -18,6 +18,19 @@ class Card(pygame.sprite.Sprite):
         pass
 
 
+class AnnounceRect(pygame.sprite.Sprite):
+    def __init__(self, x_pos, y_pos, image, rect_title):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(x_pos, y_pos, 200, 100)
+        self.rect_title = rect_title
+        self.image = pygame.image.load(image)
+        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+
+    def draw(self, win):
+        win.blit(self.image, self.rect)
+
+
+
 def run_game():
     pygame.init()
     window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -25,13 +38,28 @@ def run_game():
     sprites = pygame.sprite.Group()
     sprites.add(Card(50, 60))
     clock = pygame.time.Clock()
+    margin = 400
+    r = pygame.Rect(margin, margin, WINDOW_WIDTH - margin, WINDOW_HEIGHT - margin)
+    r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.MOUSEBUTTONUP:
+                print(pygame.mouse.get_pos())
+                print(r.left, r.top, r.width, r.height)
         sprites.update()
+
         window.fill("black")
+        pygame.draw.rect(window, "green", r)
+        for announce_square in range(200, 500, 75):
+            a = AnnounceRect(r.left, announce_square, "random.jpg", "")
+            a.draw(window)
+        for announce_square in range(200, 500, 75):
+            a = AnnounceRect(r.left+r.left, announce_square, "random.jpg", "")
+            a.draw(window)
         sprites.draw(window)
         pygame.display.flip()
 
@@ -60,6 +88,7 @@ class Row:
 
     def make_announcements(self):
         available_announcements = {
+            "Pass": 0,
             "Spades": 1,
             "Diamonds": 2,
             "Hearts": 3,
