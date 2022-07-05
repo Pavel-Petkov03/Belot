@@ -25,47 +25,56 @@ class AnnounceRect(pygame.sprite.Sprite):
         self.rect_title = rect_title
         self.image = pygame.image.load(image)
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+        window.blit(self.image, self.rect)
 
-    def draw(self, win):
-        win.blit(self.image, self.rect)
+
+class AnnounceModal(pygame.sprite.Group):
+    def __init__(self):
+        pygame.sprite.Group.__init__(self)
+        self.is_toggled = False
+
+    @property
+    def is_toggled(self):
+        return self._is_toggled
+
+    @is_toggled.setter
+    def is_toggled(self, value):
+        if value is False:
+            self.empty()
+        self._is_toggled = value
+
+    def toggle_modal(self):
+        margin = 400
+        r = pygame.Rect(margin, margin, WINDOW_WIDTH - margin, WINDOW_HEIGHT - margin)
+        r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+        pygame.draw.rect(window, "white", r)
+        for x_axis in range(2):
+            for y_axis in range(4):
+                middle_x = (r.width / 2)
+                divided_y_axis = r.height / 16 * 3
+                y_pos = r.top + divided_y_axis * y_axis
+                x_pos = r.left + middle_x * x_axis
+                rect = AnnounceRect(x_pos, y_pos, middle_x, divided_y_axis, "random.jpg", "")
+                self.add(rect)
+        self.add(AnnounceRect(r.left, r.top + r.height / 4 * 3, r.width, r.height / 4, "random.jpg", ""))
 
 
 def run_game():
     pygame.init()
-    window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     run = True
-    sprites = pygame.sprite.Group()
-    sprites.add(Card(50, 60))
+    card_sprites = pygame.sprite.Group()
+    card_sprites.add(Card(50, 60))
     clock = pygame.time.Clock()
-    margin = 400
-    r = pygame.Rect(margin, margin, WINDOW_WIDTH - margin, WINDOW_HEIGHT - margin)
-    r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONUP:
-                print(pygame.mouse.get_pos())
-                print(r.left, r.top, r.width, r.height, r.x, r.right, r.bottom)
-        sprites.update()
+                pass
 
-        window.fill("black")
-        pygame.draw.rect(window, "green", r)
-        for x_axis in range(2):
-            for y_axis in range(4):
-                middle_x = (r.width / 2)
-                divided_y_axis = r.height / 16*3
-                y_pos = r.top + divided_y_axis * y_axis
-                x_pos = r.left + middle_x * x_axis
-
-                rect = AnnounceRect(x_pos, y_pos, middle_x, divided_y_axis, "random.jpg", "")
-                rect.draw(window)
-
-        b = AnnounceRect(r.left,  r.top+r.height/4*3, r.width, r.height/4, "random.jpg", "")
-        b.draw(window)
-        sprites.draw(window)
+        card_sprites.update(window)
+        card_sprites.draw(window)
         pygame.display.flip()
 
 
@@ -122,7 +131,7 @@ class Row:
         for pop_card in range(n):
             taken_card = self.cards.pop()
             taken_card.position = "player"
-            player.cards.append()
+            player.cards.append(taken_card)
 
     def taking_hand(self):
         pass
@@ -136,4 +145,5 @@ class Game:
 
 
 if __name__ == "__main__":
+    window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     run_game()
