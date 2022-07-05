@@ -1,86 +1,14 @@
+import random
+
 import pygame
 
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 1000
-FPS = 30
-
-
-class Card(pygame.sprite.Sprite):
-    def __init__(self, x_pos, y_pos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8))
-        self.image.fill("green")
-        self.rect = self.image.get_rect()
-        self.rect.center = (x_pos, y_pos)
-        self.position = "dealer"
-
-    def update(self, *args, **kwargs) -> None:
-        pass
-
-
-class AnnounceRect(pygame.sprite.Sprite):
-    def __init__(self, x_pos, y_pos, width, height, image, rect_title):
-        pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(x_pos, y_pos, width, height)
-        self.rect_title = rect_title
-        self.image = pygame.image.load(image)
-        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
-        window.blit(self.image, self.rect)
-
-
-class AnnounceModal(pygame.sprite.Group):
-    def __init__(self):
-        pygame.sprite.Group.__init__(self)
-        self.is_toggled = False
-
-    @property
-    def is_toggled(self):
-        return self._is_toggled
-
-    @is_toggled.setter
-    def is_toggled(self, value):
-        if value is False:
-            self.empty()
-        self._is_toggled = value
-
-    def toggle_modal(self):
-        margin = 400
-        r = pygame.Rect(margin, margin, WINDOW_WIDTH - margin, WINDOW_HEIGHT - margin)
-        r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-        pygame.draw.rect(window, "white", r)
-        for x_axis in range(2):
-            for y_axis in range(4):
-                middle_x = (r.width / 2)
-                divided_y_axis = r.height / 16 * 3
-                y_pos = r.top + divided_y_axis * y_axis
-                x_pos = r.left + middle_x * x_axis
-                rect = AnnounceRect(x_pos, y_pos, middle_x, divided_y_axis, "random.jpg", "")
-                self.add(rect)
-        self.add(AnnounceRect(r.left, r.top + r.height / 4 * 3, r.width, r.height / 4, "random.jpg", ""))
-
-
-def run_game():
-    pygame.init()
-    run = True
-    card_sprites = pygame.sprite.Group()
-    card_sprites.add(Card(50, 60))
-    clock = pygame.time.Clock()
-    while run:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.MOUSEBUTTONUP:
-                pass
-
-        card_sprites.update(window)
-        card_sprites.draw(window)
-        pygame.display.flip()
+from utils import create_deck
+from variables import WINDOW_WIDTH, WINDOW_HEIGHT, FPS
 
 
 class Player:
-    def __init__(self, cards):
-        self.cards = cards
+    def __init__(self):
+        self.cards = []
 
 
 class Bot(Player):
@@ -91,8 +19,8 @@ class Bot(Player):
 class Row:
     def __init__(self, players_deque, cards):
         self.players_deque = players_deque  # [, next , next , next, current dealer]
-        self.cards = cards
         self.announced_game = None
+        self.cards = cards
 
     def card_dealing_before_announcements(self):
         first_row_dealing = 3
@@ -101,6 +29,7 @@ class Row:
         self.make_dealing_row(second_row_dealing)
 
     def make_announcements(self):
+
         available_announcements = {
             "Pass": 0,
             "Spades": 1,
@@ -142,6 +71,24 @@ class Row:
 
 class Game:
     pass
+
+
+def run_game():
+    pygame.init()
+    run = True
+    clock = pygame.time.Clock()
+    players_deque = [Bot(), Bot(), Bot(), Player()]
+    cards = create_deck()
+    random.shuffle(cards)
+    while run:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONUP:
+                pass
+        Row(players_deque, cards).run_row()
+        pygame.display.flip()
 
 
 if __name__ == "__main__":
