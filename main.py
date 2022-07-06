@@ -2,13 +2,15 @@ import random
 
 import pygame
 
+from cards import CardSprite
 from utils import create_deck
-from variables import WINDOW_WIDTH, WINDOW_HEIGHT, FPS
+from variables import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, window
 
 
 class Player:
-    def __init__(self):
+    def __init__(self, x_y_pos):
         self.cards = []
+        self.x_y_position_on_board = x_y_pos
 
 
 class Bot(Player):
@@ -16,11 +18,26 @@ class Bot(Player):
         pass
 
 
+class Animation:
+    def deal_cards_animation(self, players):
+
+        for player in players:
+
+
+            for card in sorted(player.cards, key=lambda obj : (obj.suit, obj.rank)):
+
+    def define_movement_axis(self, player):
+        player_x, player_y = player.x_y_position_on_board
+        if player_x in (0 , WINDOW_WIDTH):
+            pass
+
+
 class Row:
     def __init__(self, players_deque, cards):
         self.players_deque = players_deque  # [, next , next , next, current dealer]
         self.announced_game = None
         self.cards = cards
+        self.first_row_given = False
 
     def card_dealing_before_announcements(self):
         first_row_dealing = 3
@@ -59,14 +76,14 @@ class Row:
     def pop_n_cards_and_give_to_player(self, n, player):
         for pop_card in range(n):
             taken_card = self.cards.pop()
-            taken_card.position = "player"
             player.cards.append(taken_card)
 
     def taking_hand(self):
         pass
 
     def run_row(self):
-        self.card_dealing_before_announcements()
+        if not self.first_row_given:
+            self.card_dealing_before_announcements()
 
 
 class Game:
@@ -77,7 +94,8 @@ def run_game():
     pygame.init()
     run = True
     clock = pygame.time.Clock()
-    players_deque = [Bot(), Bot(), Bot(), Player()]
+    players_deque = [Bot((WINDOW_WIDTH, WINDOW_HEIGHT / 2)), Bot((WINDOW_WIDTH / 2, 0)), Bot((0, WINDOW_HEIGHT / 2)),
+                     Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT))]
     cards = create_deck()
     random.shuffle(cards)
     while run:
@@ -92,5 +110,4 @@ def run_game():
 
 
 if __name__ == "__main__":
-    window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     run_game()
