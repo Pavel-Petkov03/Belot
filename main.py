@@ -1,4 +1,5 @@
 import random
+import time
 from time import sleep
 
 import pygame
@@ -16,13 +17,15 @@ class Player:
 
 class Bot(Player):
     def generate_random_announcements_algorythm(self):
-        pass
+        # this functionality will be made later
+        return "Pass"
 
 
 class Animation:
     def deal_cards_animation(self, players):
         deck = Deck()
-        distance_between_cards = 73
+        distance_between_cards = 50
+        degrees = 90
         for player in players:
             player_x, player_y = player.x_y_position_on_board
             add_tup, reduce_tup = self.define_movement_axis(player, distance_between_cards)
@@ -31,11 +34,12 @@ class Animation:
             next_card_x = player_x + add_x - reduce_x
             next_card_y = player_y + add_y - reduce_y
             for card in sorted(player.cards, key=lambda obj: (obj.suit, obj.rank)):
-                animation_card = CardSprite(next_card_x, next_card_y, "random.jpg")
+                animation_card = CardSprite(next_card_x, next_card_y, f"cards_png/{card.get_image_location()}", degrees)
                 next_card_x += add_x
                 next_card_y += add_y
                 deck.add(animation_card)
                 animation_card.update()
+            degrees += 90
 
     @staticmethod
     def define_movement_axis(player, distance_between_cards):
@@ -43,7 +47,7 @@ class Animation:
 
         player_x, player_y = player.x_y_position_on_board
         reduce_value = len(player.cards) / 2 * distance_between_cards
-        if player_x in (DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_WIDTH-DISTANCE_BETWEEN_PLAYER_AND_WINDOW):
+        if player_x in (DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW):
             reduce_tup = (not_moving, reduce_value)
             add_tup = (not_moving, distance_between_cards)
         else:
@@ -112,6 +116,7 @@ class Row(Animation):
     def run_row(self):
         if not self.first_row_given:
             self.card_dealing_before_announcements()
+        self.make_announcements()
 
 
 class Game:
@@ -122,7 +127,8 @@ def run_game():
     pygame.init()
     run = True
     clock = pygame.time.Clock()
-    players_deque = [Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2)), Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW)),
+    players_deque = [Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2)),
+                     Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW)),
                      Bot((DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2)),
                      Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT - DISTANCE_BETWEEN_PLAYER_AND_WINDOW))]
     cards = create_deck()
