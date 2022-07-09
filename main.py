@@ -1,9 +1,11 @@
 import random
 import time
+from collections import deque
 from time import sleep
 
 import pygame
 
+from announcement_modal import AnnounceModal
 from cards import CardSprite, Deck
 from utils import create_deck
 from variables import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, window, DISTANCE_BETWEEN_PLAYER_AND_WINDOW
@@ -64,7 +66,7 @@ class Animation:
 
 class Row(Animation):
     def __init__(self, players_deque, cards):
-        self.players_deque = players_deque  # [, next , next , next, current dealer]
+        self.players_deque = deque(players_deque)  # [, next , next , next, current dealer]
         self.announced_game = None
         self.cards = cards
         self.first_row_given = False
@@ -93,9 +95,10 @@ class Row(Animation):
             self.toggle_modal_for_announcements()
         else:
             current_announcer.generate_random_announcements_algorythm()
+        self.players_deque.append(self.players_deque.popleft())
 
     def toggle_modal_for_announcements(self):
-        pass
+        AnnounceModal().toggle_modal()
 
     def card_dealing_after_announcements(self):
         third_row_dealing = 3
@@ -116,7 +119,7 @@ class Row(Animation):
     def run_row(self):
         if not self.first_row_given:
             self.card_dealing_before_announcements()
-        self.make_announcements()
+        # self.make_announcements()
 
 
 class Game:

@@ -1,6 +1,6 @@
 import pygame
 
-from main import WINDOW_WIDTH, WINDOW_HEIGHT, window
+from variables import WINDOW_WIDTH, WINDOW_HEIGHT, window
 
 
 class AnnounceRect(pygame.sprite.Sprite):
@@ -28,6 +28,6 @@ class AnnounceModal(pygame.sprite.Group):
                 divided_y_axis = r.height / 16 * 3
                 y_pos = r.top + divided_y_axis * y_axis
                 x_pos = r.left + middle_x * x_axis
-                rect = AnnounceRect(x_pos, y_pos, middle_x, divided_y_axis, "random.jpg", "")
+                rect = AnnounceRect(x_pos, y_pos, middle_x, divided_y_axis, "cards_png/7_of_hearts.png", "")
                 self.add(rect)
-        self.add(AnnounceRect(r.left, r.top + r.height / 4 * 3, r.width, r.height / 4, "random.jpg", ""))
+        self.add(AnnounceRect(r.left, r.top + r.height / 4 * 3, r.width, r.height / 4, "cards_png/7_of_hearts.png", ""))
