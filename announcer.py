@@ -25,12 +25,12 @@ class Announcer:
     def make_announcements(self, players_deque):
         current_announcer = players_deque[0]
         if not isinstance(current_announcer, Bot):
-            self.announce_modal.toggle_modal()
+            self.announce_modal.toggle_modal(self.available_announcements)
             if self.toggle_animation_done:
                 self.make_shift(players_deque)
                 self.toggle_animation_done = False
         else:
-            announce_result = current_announcer.generate_random_announcements_algorythm()
+            announce_result = current_announcer.generate_random_announcements_algorythm(self.available_announcements)
             self.animation.toggle_rect(announce_result, current_announcer.x_y_position_on_board,
                                        current_announcer.rotation_degrees_of_own_cards)
             self.calculate_available_announcements(announce_result, current_announcer)
@@ -39,11 +39,13 @@ class Announcer:
             self.make_shift(players_deque)
 
     def calculate_available_announcements(self, announce, player):
+        if announce == "Pass":
+            return
         upper_announce_dict = {entry[0]: entry[1] for entry in list(self.available_announcements.items()) if
-                               self.available_announcements[announce] > self.available_announcements[entry[0]]}
+                               self.available_announcements[announce] < self.available_announcements[entry[0]]}
         for team in TEAMS:
-            if not (player in team and self.game_announcer in team):
-                if "double" in upper_announce_dict:
+            if player in team and self.game_announcer in team:
+                if "Double" in upper_announce_dict:
                     upper_announce_dict["Redouble"] = 8
                 else:
                     upper_announce_dict["Double"] = 7

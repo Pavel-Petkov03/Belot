@@ -1,3 +1,5 @@
+import random
+
 
 class Player:
     def __init__(self, x_y_pos, rotation_degrees):
@@ -7,6 +9,6 @@ class Player:
 
 
 class Bot(Player):
-    def generate_random_announcements_algorythm(self):
+    def generate_random_announcements_algorythm(self, available_announcements):
         # this functionality will be made later
-        return "Pass"
+        return random.choice(list(available_announcements.keys()))

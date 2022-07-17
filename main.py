@@ -73,7 +73,10 @@ def run_game():
             if event.type == pygame.MOUSEBUTTONUP:
 
                 if not game_row.announcements_made and not game_row.announcer.toggle_animation_done:
-                    game_row.announcer.toggle_animation_done = True
+                    (x, y) = pygame.mouse.get_pos()
+                    for announce_sprite in game_row.announcer.announce_modal.available_sprites():
+                        if announce_sprite.rect.collidepoint(x, y):
+                            game_row.announcer.toggle_animation_done = True
 
         game_row.run_row()
         pygame.display.flip()
