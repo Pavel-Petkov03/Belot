@@ -1,5 +1,6 @@
+from animation import Animation
 from announcement_modal import AnnounceModal
-from main import Bot, Animation
+from player import Bot
 from variables import TEAMS
 
 

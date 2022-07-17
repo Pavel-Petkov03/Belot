@@ -2,7 +2,7 @@ from collections import deque
 
 import pygame
 
-from main import Bot, Player
+from player import Bot, Player
 from team import Team
 
 WINDOW_WIDTH = 800
