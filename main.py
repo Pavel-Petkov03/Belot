@@ -12,9 +12,10 @@ from variables import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, window, DISTANCE_BETWEEN
 
 
 class Player:
-    def __init__(self, x_y_pos):
+    def __init__(self, x_y_pos, rotation_degrees):
         self.cards = []
         self.x_y_position_on_board = x_y_pos
+        self.rotation_degrees_of_own_cards = rotation_degrees
 
 
 class Bot(Player):
@@ -27,7 +28,6 @@ class Animation:
     def deal_cards_animation(self, players):
         deck = Deck()
         distance_between_cards = 50
-        degrees = 90
         for player in players:
             player_x, player_y = player.x_y_position_on_board
             add_tup, reduce_tup = self.define_movement_axis(player, distance_between_cards)
@@ -36,12 +36,12 @@ class Animation:
             next_card_x = player_x + add_x - reduce_x
             next_card_y = player_y + add_y - reduce_y
             for card in sorted(player.cards, key=lambda obj: (obj.suit, obj.rank)):
-                animation_card = CardSprite(next_card_x, next_card_y, f"cards_png/{card.get_image_location()}", degrees)
+                animation_card = CardSprite(next_card_x, next_card_y, f"cards_png/{card.get_image_location()}", player.rotation_degrees_of_own_cards)
                 next_card_x += add_x
                 next_card_y += add_y
                 deck.add(animation_card)
                 animation_card.update()
-            degrees += 90
+
 
     @staticmethod
     def define_movement_axis(player, distance_between_cards):
@@ -63,6 +63,13 @@ class Animation:
         rot_rect = rot_image.get_rect(center=rect.center)
         return rot_image, rot_rect
 
+    def toggle_rect(self, announce_string, degrees):
+        font = pygame.font.SysFont(None, 50)
+        i = font.render(announce_string, True, "black", "white")
+        i = pygame.transform.rotate(i, degrees)
+        window.blit(i, (100, 100))
+
+
 
 class Row(Animation):
     def __init__(self, players_deque, cards):
@@ -76,7 +83,6 @@ class Row(Animation):
         second_row_dealing = 2
         self.make_dealing_row(first_row_dealing)
         self.make_dealing_row(second_row_dealing)
-        self.deal_cards_animation(self.players_deque)
         self.first_row_given = True
 
     def make_announcements(self):
@@ -94,7 +100,8 @@ class Row(Animation):
         if not isinstance(current_announcer, Bot):
             self.toggle_modal_for_announcements()
         else:
-            current_announcer.generate_random_announcements_algorythm()
+            announce_result = current_announcer.generate_random_announcements_algorythm()
+            self.toggle_rect(announce_result, )
         self.players_deque.append(self.players_deque.popleft())
 
     def toggle_modal_for_announcements(self):
@@ -119,7 +126,9 @@ class Row(Animation):
     def run_row(self):
         if not self.first_row_given:
             self.card_dealing_before_announcements()
-        # self.make_announcements()
+        self.deal_cards_animation(self.players_deque)
+
+
 
 
 class Game:
@@ -130,16 +139,18 @@ def run_game():
     pygame.init()
     run = True
     clock = pygame.time.Clock()
-    players_deque = [Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2)),
-                     Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW)),
-                     Bot((DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2)),
-                     Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT - DISTANCE_BETWEEN_PLAYER_AND_WINDOW))]
+    players_deque = [Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 90),
+                     Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW),  180),
+                     Bot((DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2),  270),
+                     Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT - DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 360)]
     cards = create_deck()
     random.shuffle(cards)
     game_row = Row(players_deque, cards)
     while run:
         clock.tick(FPS)
+        window.fill('black')
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONUP:
@@ -150,3 +161,6 @@ def run_game():
 
 if __name__ == "__main__":
     run_game()
+
+# pygame.time.get_ticks()
+
