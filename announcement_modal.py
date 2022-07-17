@@ -14,8 +14,6 @@ class AnnounceRect(pygame.sprite.Sprite):
 
 
 class AnnounceModal(pygame.sprite.Group):
-    def __init__(self):
-        pygame.sprite.Group.__init__(self)
 
     def toggle_modal(self):
         margin = 400
@@ -30,5 +28,9 @@ class AnnounceModal(pygame.sprite.Group):
                 x_pos = r.left + middle_x * x_axis
                 rect = AnnounceRect(x_pos, y_pos, middle_x, divided_y_axis, "cards_png/7_of_hearts.png", "")
                 self.add(rect)
-        self.add(AnnounceRect(r.left, r.top + r.height / 4 * 3, r.width, r.height / 4, "cards_png/7_of_hearts.png", ""))
+        self.add(AnnounceRect(r.left, r.top + r.height / 4 * 3, r.width, r.height / 4, "cards_png/7_of_hearts.png", "Pass"))
+
+
+
+
 

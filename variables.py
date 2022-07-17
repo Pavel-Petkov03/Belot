@@ -8,3 +8,9 @@ window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 all_suits = ["clubs", "hearts", "diamonds", "spades"]
 all_ranks = ["7", "8", "9", "10", "J", "Q", "K", "A"]
 
+announce_string_matrix = [
+    ("spades", "No Trumps"),
+    ("diamonds", "All Trumps"),
+    ("hearts", "Counter"),
+    ("clubs", "Quadruple")
+]

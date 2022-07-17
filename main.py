@@ -36,12 +36,12 @@ class Animation:
             next_card_x = player_x + add_x - reduce_x
             next_card_y = player_y + add_y - reduce_y
             for card in sorted(player.cards, key=lambda obj: (obj.suit, obj.rank)):
-                animation_card = CardSprite(next_card_x, next_card_y, f"cards_png/{card.get_image_location()}", player.rotation_degrees_of_own_cards)
+                animation_card = CardSprite(next_card_x, next_card_y, f"cards_png/{card.get_image_location()}",
+                                            player.rotation_degrees_of_own_cards)
                 next_card_x += add_x
                 next_card_y += add_y
                 deck.add(animation_card)
                 animation_card.update()
-
 
     @staticmethod
     def define_movement_axis(player, distance_between_cards):
@@ -63,12 +63,12 @@ class Animation:
         rot_rect = rot_image.get_rect(center=rect.center)
         return rot_image, rot_rect
 
-    def toggle_rect(self, announce_string, degrees):
+    @staticmethod
+    def toggle_rect(announce_string, pos, degrees):
         font = pygame.font.SysFont(None, 50)
         i = font.render(announce_string, True, "black", "white")
         i = pygame.transform.rotate(i, degrees)
-        window.blit(i, (100, 100))
-
+        window.blit(i, pos)
 
 
 class Row(Animation):
@@ -77,6 +77,7 @@ class Row(Animation):
         self.announced_game = None
         self.cards = cards
         self.first_row_given = False
+        self.toggle_animation_done = False
 
     def card_dealing_before_announcements(self):
         first_row_dealing = 3
@@ -87,24 +88,20 @@ class Row(Animation):
 
     def make_announcements(self):
 
-        available_announcements = {
-            "Pass": 0,
-            "Spades": 1,
-            "Diamonds": 2,
-            "Hearts": 3,
-            "Clubs": 4,
-            "No trumps": 5,
-            "All trumps": 6,
-        }
         current_announcer = self.players_deque[0]
         if not isinstance(current_announcer, Bot):
             self.toggle_modal_for_announcements()
+            if self.toggle_animation_done:
+                self.players_deque.append(self.players_deque.popleft())
+                self.toggle_animation_done = False
         else:
             announce_result = current_announcer.generate_random_announcements_algorythm()
-            self.toggle_rect(announce_result, )
-        self.players_deque.append(self.players_deque.popleft())
+            self.toggle_rect(announce_result, current_announcer.x_y_position_on_board,
+                             current_announcer.rotation_degrees_of_own_cards)
+            self.players_deque.append(self.players_deque.popleft())
 
-    def toggle_modal_for_announcements(self):
+    @staticmethod
+    def toggle_modal_for_announcements():
         AnnounceModal().toggle_modal()
 
     def card_dealing_after_announcements(self):
@@ -127,8 +124,7 @@ class Row(Animation):
         if not self.first_row_given:
             self.card_dealing_before_announcements()
         self.deal_cards_animation(self.players_deque)
-
-
+        self.make_announcements()
 
 
 class Game:
@@ -139,22 +135,23 @@ def run_game():
     pygame.init()
     run = True
     clock = pygame.time.Clock()
-    players_deque = [Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 90),
-                     Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW),  180),
-                     Bot((DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2),  270),
-                     Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT - DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 360)]
+    players_deque = [Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 270),
+                     Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 0),
+                     Bot((DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 90),
+                     Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT - DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 0)]
     cards = create_deck()
     random.shuffle(cards)
     game_row = Row(players_deque, cards)
     while run:
-        clock.tick(FPS)
+        clock.tick(120)
         window.fill('black')
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONUP:
-                pass
+
+                if not game_row.toggle_animation_done:
+                    game_row.toggle_animation_done = True
         game_row.run_row()
         pygame.display.flip()
 
@@ -163,4 +160,3 @@ if __name__ == "__main__":
     run_game()
 
 # pygame.time.get_ticks()
-
