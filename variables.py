@@ -1,4 +1,9 @@
+from collections import deque
+
 import pygame
+
+from main import Bot, Player
+from team import Team
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 800
@@ -14,3 +19,19 @@ announce_string_matrix = [
     ("Hearts", "Double"),
     ("Spades", "Redouble")
 ]
+
+player_1 = Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 270)
+player_2 = Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 0)
+player_3 = Bot((DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 90)
+player_4 = Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT - DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 0)
+
+team_1 = Team(player_1, player_3)
+team_2 = Team(player_2, player_4)
+
+TEAMS = (team_1, team_2)
+PLAYERS_DEQUE = deque(
+    [player_1,
+     player_2,
+     player_3,
+     player_4]
+)

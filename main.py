@@ -8,7 +8,7 @@ import pygame
 from announcement_modal import AnnounceModal
 from cards import CardSprite, Deck
 from utils import create_deck
-from variables import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, window, DISTANCE_BETWEEN_PLAYER_AND_WINDOW
+from variables import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, window, DISTANCE_BETWEEN_PLAYER_AND_WINDOW, PLAYERS_DEQUE
 
 
 class Player:
@@ -135,13 +135,9 @@ def run_game():
     pygame.init()
     run = True
     clock = pygame.time.Clock()
-    players_deque = [Bot((WINDOW_WIDTH - DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 270),
-                     Bot((WINDOW_WIDTH / 2, DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 0),
-                     Bot((DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_HEIGHT / 2), 90),
-                     Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT - DISTANCE_BETWEEN_PLAYER_AND_WINDOW), 0)]
     cards = create_deck()
     random.shuffle(cards)
-    game_row = Row(players_deque, cards)
+    game_row = Row(PLAYERS_DEQUE, cards)
     while run:
         clock.tick(120)
         window.fill('black')
