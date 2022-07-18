@@ -77,6 +77,7 @@ def run_game():
                     for announce_sprite in game_row.announcer.announce_modal.available_sprites():
                         if announce_sprite.rect.collidepoint(x, y):
                             game_row.announcer.toggle_animation_done = True
+                            game_row.announcer.start = time.time()
 
         game_row.run_row()
         pygame.display.flip()
