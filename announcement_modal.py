@@ -30,7 +30,6 @@ class AnnounceModal(pygame.sprite.Group):
     def toggle_modal(self, available_dict):
         self.empty()
         margin = WINDOW_WIDTH/5
-        print(margin)
         r = pygame.Rect(margin, margin, WINDOW_WIDTH - margin, WINDOW_HEIGHT - margin)
         r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
         for x_axis in range(2):

@@ -16,10 +16,15 @@ class Deck(pygame.sprite.Group):
     def __init__(self):
         pygame.sprite.Group.__init__(self)
 
+    def find_card_sprite(self, suit, rank):
+        return list(filter(lambda sprite: sprite.suit == suit and sprite.rank == rank, self.sprites()))[0]
 
-class CardSprite(pygame.sprite.Sprite):
-    def __init__(self, x_pos, y_pos, image_location, degrees):
+
+class CardSprite(pygame.sprite.Sprite, Card):
+    def __init__(self, rank, suit, x_pos, y_pos, image_location, degrees):
         pygame.sprite.Sprite.__init__(self)
+        self.rank = rank
+        self.suit = suit
         self.image = pygame.Surface((WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8))
         self.image_location = image_location
         self.rect = self.image.get_rect()

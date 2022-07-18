@@ -12,3 +12,7 @@ class Bot(Player):
     def generate_random_announcements_algorythm(self, available_announcements):
         # this functionality will be made later
         return random.choice(list(available_announcements.keys()))
+
+    def generate_choose_card_algorythm(self, available_cards):
+        # this functionality will be made later
+        return random.choice(self.cards)

@@ -18,7 +18,8 @@ class Animation:
             next_card_x = player_x + add_x - reduce_x
             next_card_y = player_y + add_y - reduce_y
             for card in sorted(player.cards, key=lambda obj: (obj.suit, obj.rank)):
-                animation_card = CardSprite(next_card_x, next_card_y, f"cards_png/{card.get_image_location()}",
+                animation_card = CardSprite(card.suit, card.rank, next_card_x, next_card_y,
+                                            f"cards_png/{card.get_image_location()}",
                                             player.rotation_degrees_of_own_cards)
                 next_card_x += add_x
                 next_card_y += add_y
