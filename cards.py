@@ -28,7 +28,7 @@ class CardSprite(pygame.sprite.Sprite, Card):
         pygame.sprite.Sprite.__init__(self)
         self.suit = suit
         self.rank = rank
-        self.image = pygame.Surface((WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8))
+        self.image = pygame.Surface((WINDOW_HEIGHT / 8, WINDOW_WIDTH / 12, ))
         self.rect = self.image.get_rect()
         self.rect.center = (x_pos, y_pos)
         self.image = pygame.image.load(self.get_image_location())
