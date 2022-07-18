@@ -10,10 +10,10 @@ from player import Bot
 from variables import TEAMS
 
 
-class Announcer:
+class Announcer(Animation):
 
     def __init__(self):
-        self.animation = Animation()
+        super().__init__()
         self.available_announcements = {
             "Pass": 0,
             "Clubs": 1,
@@ -69,9 +69,11 @@ class Announcer:
 
     def make_animation_delay(self, current_announcer, players_deque):
         if self.start + self.delay > pygame.time.get_ticks():
-            self.animation.toggle_rect(self.announce_rect_text,
-                                       current_announcer.x_y_position_on_board,
-                                       current_announcer.rotation_degrees_of_own_cards)
+            self.toggle_rect(
+                self.announce_rect_text,
+                current_announcer.x_y_position_on_board,
+                current_announcer.rotation_degrees_of_own_cards
+            )
         else:
             self.make_shift(players_deque)
             self.animation_started = False

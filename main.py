@@ -7,6 +7,7 @@ import pygame
 
 from animation import Animation
 from announcer import Announcer
+from card_table import CardTable
 from errors import EndGameError
 from utils import create_deck
 from variables import window, PLAYERS_DEQUE, player_4
@@ -22,6 +23,7 @@ class Row(Animation):
         self.second_row_given = False
         self.announcements_made = False
         self.announcer = Announcer()
+        self.card_table = CardTable()
 
     def card_dealing_before_announcements(self):
         first_row_dealing = 3
@@ -49,9 +51,6 @@ class Row(Animation):
             taken_card = self.cards.pop()
             player.cards.append(taken_card)
 
-    def taking_hand(self):
-        pass
-
     def run_row(self):
         self.deal_cards_animation(self.players_deque)
         if not self.first_row_given:
@@ -60,6 +59,8 @@ class Row(Animation):
             self.make_announcements()
         elif not self.second_row_given:
             self.card_dealing_after_announcements()
+        else:
+            self.card_table.main(self.players_deque)
 
 
 class Game:
