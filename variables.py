@@ -5,8 +5,11 @@ import pygame
 from player import Bot, Player
 from team import Team
 
-WINDOW_WIDTH = 600
-WINDOW_HEIGHT = 600
+import ctypes
+
+user32 = ctypes.windll.user32
+
+WINDOW_WIDTH, WINDOW_HEIGHT = user32.GetSystemMetrics(0) , user32.GetSystemMetrics(1)
 FPS = 30
 DISTANCE_BETWEEN_PLAYER_AND_WINDOW = 100
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))

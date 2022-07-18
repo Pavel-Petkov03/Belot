@@ -7,15 +7,19 @@ import pygame
 
 from animation import Animation
 from announcer import Announcer
+from errors import EndGameError
 from utils import create_deck
 from variables import window, PLAYERS_DEQUE, player_4
 
 
 class Row(Animation):
     def __init__(self, players_deque, cards):
+        super().__init__()
         self.players_deque = deque(players_deque)  # [, next , next , next, current dealer]
+        self.temporary_deque = self.players_deque.copy()
         self.cards = cards
         self.first_row_given = False
+        self.second_row_given = False
         self.announcements_made = False
         self.announcer = Announcer()
 
@@ -27,11 +31,14 @@ class Row(Animation):
         self.first_row_given = True
 
     def make_announcements(self):
-        self.announcer.make_announcements(self.players_deque)
+        is_done_bool = self.announcer.make_announcements(self.temporary_deque)  # returns true if done
+        if is_done_bool:
+            self.announcements_made = True
 
     def card_dealing_after_announcements(self):
         third_row_dealing = 3
         self.make_dealing_row(third_row_dealing)
+        self.second_row_given = True
 
     def make_dealing_row(self, dealing_row, ):
         for player in self.players_deque:
@@ -46,11 +53,13 @@ class Row(Animation):
         pass
 
     def run_row(self):
+        self.deal_cards_animation(self.players_deque)
         if not self.first_row_given:
             self.card_dealing_before_announcements()
-        self.deal_cards_animation(self.players_deque)
-        if not self.announcements_made:
+        elif not self.announcements_made:
             self.make_announcements()
+        elif not self.second_row_given:
+            self.card_dealing_after_announcements()
 
 
 class Game:
@@ -82,6 +91,7 @@ def run_game():
                             game_row.announcer.start = pygame.time.get_ticks()
                             game_row.announcer.announce_rect_text = announce_sprite.rect_title
                             game_row.announcer.generate_available_announcements(player_4)
+                            game_row.announcer.add_to_pass_list()
 
         game_row.run_row()
         pygame.display.flip()

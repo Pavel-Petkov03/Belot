@@ -5,8 +5,10 @@ from variables import DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_WIDTH, window
 
 
 class Animation:
+    def __init__(self):
+        self.deck = Deck()
+
     def deal_cards_animation(self, players):
-        deck = Deck()
         distance_between_cards = 50
         for player in players:
             player_x, player_y = player.x_y_position_on_board
@@ -20,7 +22,7 @@ class Animation:
                                             player.rotation_degrees_of_own_cards)
                 next_card_x += add_x
                 next_card_y += add_y
-                deck.add(animation_card)
+                self.deck.add(animation_card)
                 animation_card.update()
 
     @staticmethod

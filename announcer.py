@@ -5,11 +5,9 @@ import pygame.time
 
 from animation import Animation
 from announcement_modal import AnnounceModal
+from errors import EndGameError, AnnouncementsDoneError
 from player import Bot
 from variables import TEAMS
-
-
-
 
 
 class Announcer:
@@ -34,33 +32,36 @@ class Announcer:
         self.announce_rect_text = None
         self.pass_list = []  # if 4 passes or 1 announcement and 3 passes stop making announcements
 
-    def add_to_pass_list(self, value):
-        if value != "Pass":
+    def add_to_pass_list(self):
+        if self.announce_rect_text != "Pass":
             self.pass_list.clear()
-            self.pass_list.append(value)
-
-        if len(list(filter(lambda announce : announce == "Pass", self.pass_list))) == 4:
-            raise EndGameError()
+            self.pass_list.append(self.announce_rect_text)
+        elif len(list(filter(lambda announce: announce == "Pass", self.pass_list))) == 4:
+            raise EndGameError("Not chosen game")
+        else:
+            # its pass
+            self.pass_list.append(self.announce_rect_text)
 
     def make_announcements(self, players_deque):
-        if len(self.pass_list) == 4:
-            return True # announcements done
+        try:
+            current_announcer = players_deque[0]
+            if not isinstance(current_announcer, Bot):
+                if self.toggle_animation_done:
+                    self.make_animation_delay(current_announcer, players_deque)
+                else:
+                    self.announce_modal.toggle_modal(self.available_announcements)
 
-        current_announcer = players_deque[0]
-        if not isinstance(current_announcer, Bot):
-            if self.toggle_animation_done:
-                self.make_animation_delay(current_announcer, players_deque)
             else:
-                self.announce_modal.toggle_modal(self.available_announcements)
+                if not self.animation_started:
+                    self.announce_rect_text = current_announcer.generate_random_announcements_algorythm(
+                        self.available_announcements)
+                    self.generate_available_announcements(current_announcer)
+                    self.add_to_pass_list()  # adds the announcement
+                    self.animation_started = True
 
-        else:
-            if not self.animation_started:
-                self.announce_rect_text = current_announcer.generate_random_announcements_algorythm(
-                    self.available_announcements)
-                self.generate_available_announcements(current_announcer)
-                self.animation_started = True
-
-            self.make_animation_delay(current_announcer, players_deque)
+                self.make_animation_delay(current_announcer, players_deque)
+        except AnnouncementsDoneError:
+            return True
 
     def generate_available_announcements(self, current_announcer):
         self.calculate_available_announcements(self.announce_rect_text, current_announcer)
@@ -76,8 +77,8 @@ class Announcer:
             self.animation_started = False
             self.toggle_animation_done = False
             self.start = pygame.time.get_ticks()
-
-
+            if len(self.pass_list) == 4:
+                raise AnnouncementsDoneError("Stop announcements")
 
     def calculate_available_announcements(self, announce, player):
         if announce == "Pass":
