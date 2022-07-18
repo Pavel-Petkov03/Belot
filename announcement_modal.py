@@ -18,13 +18,17 @@ class AnnounceRect(pygame.sprite.Sprite):
 
     def make_darker(self):
         if not self.available:
-            pass
+            darken_percent = .50
+            dark = pygame.Surface(self.image.get_size()).convert_alpha()
+            dark.fill((100, 0, 0, 0))
+            self.image.blit(dark, (0, 0))
 
 
 class AnnounceModal(pygame.sprite.Group):
     folder_prefix = "announce_png/"
 
     def toggle_modal(self, available_dict):
+        self.empty()
         margin = 400
         r = pygame.Rect(margin, margin, WINDOW_WIDTH - margin, WINDOW_HEIGHT - margin)
         r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)

@@ -8,7 +8,7 @@ import pygame
 from animation import Animation
 from announcer import Announcer
 from utils import create_deck
-from variables import window, PLAYERS_DEQUE
+from variables import window, PLAYERS_DEQUE, player_4
 
 
 class Row(Animation):
@@ -56,6 +56,8 @@ class Row(Animation):
 class Game:
     pass
 
+    # todo make implementation inside this class
+
 
 def run_game():
     pygame.init()
@@ -77,6 +79,9 @@ def run_game():
                     for announce_sprite in game_row.announcer.announce_modal.available_sprites():
                         if announce_sprite.rect.collidepoint(x, y):
                             game_row.announcer.toggle_animation_done = True
+                            game_row.announcer.start = pygame.time.get_ticks()
+                            game_row.announcer.announce_rect_text = announce_sprite.rect_title
+                            game_row.announcer.generate_available_announcements(player_4)
 
         game_row.run_row()
         pygame.display.flip()
