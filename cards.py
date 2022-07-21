@@ -16,6 +16,11 @@ class Deck(pygame.sprite.Group):
     def find_card_sprite(self, suit, rank):
         return list(filter(lambda sprite: sprite.suit == suit and sprite.rank == rank, self.sprites()))[0]
 
+    def empty(self) -> None:
+        for sprite in self.sprites():
+            if sprite.on_hand:
+                self.remove(sprite)
+
 
 class BoardCards(pygame.sprite.Group):
     pass
@@ -24,17 +29,19 @@ class BoardCards(pygame.sprite.Group):
 class CardSprite(pygame.sprite.Sprite, Card):
     cards_folder = "cards_png/"
 
-    def __init__(self, suit, rank, x_pos, y_pos, degrees):
+    def __init__(self, suit, rank, x_pos, y_pos, degrees, owner, on_hand=True):
         pygame.sprite.Sprite.__init__(self)
         self.suit = suit
         self.rank = rank
-        self.image = pygame.Surface((WINDOW_HEIGHT / 8, WINDOW_WIDTH / 12, ))
+        self.image = pygame.Surface((WINDOW_HEIGHT / 8, WINDOW_WIDTH / 12,))
         self.rect = self.image.get_rect()
         self.rect.center = (x_pos, y_pos)
         self.image = pygame.image.load(self.get_image_location())
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
         self.image = pygame.transform.rotate(self.image, degrees)
         self.rect = self.image.get_rect(center=self.image.get_rect(center=(x_pos, y_pos)).center)
+        self.on_hand = on_hand
+        self.owner = owner
 
     def update(self, *args, **kwargs) -> None:
         window.blit(self.image, self.rect)

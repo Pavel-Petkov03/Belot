@@ -8,6 +8,7 @@ import pygame
 from animation import Animation
 from announcer import Announcer
 from card_table import CardTable
+from cards import Deck
 from errors import EndGameError
 from utils import create_deck
 from variables import window, PLAYERS_DEQUE, player_4
@@ -24,6 +25,7 @@ class Row(Animation):
         self.announcements_made = False
         self.announcer = Announcer()
         self.card_table = CardTable()
+        self.deck = Deck()
 
     def card_dealing_before_announcements(self):
         first_row_dealing = 3
@@ -59,8 +61,9 @@ class Row(Animation):
             self.make_announcements()
         elif not self.second_row_given:
             self.card_dealing_after_announcements()
+
         else:
-            self.card_table.main(self.players_deque)
+            self.card_table.main(self.players_deque, self.deck)
 
 
 class Game:
@@ -94,6 +97,11 @@ def run_game():
                             game_row.announcer.generate_available_announcements(player_4)
                             game_row.announcer.add_to_pass_list()
 
+                elif game_row.announcements_made and game_row.card_table.is_actual_player_move:
+                    (x, y) = pygame.mouse.get_pos()
+                    for card in game_row.deck.sprites():
+                        if card.owner == player_4 and card.rect.collidepoint(x, y):
+                            print(12)
         game_row.run_row()
         pygame.display.flip()
 

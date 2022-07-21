@@ -1,12 +1,15 @@
 import pygame
 
-from cards import CardSprite
+from cards import CardSprite, Deck
 from variables import DISTANCE_BETWEEN_PLAYER_AND_WINDOW, WINDOW_WIDTH, window
 
 
 class Animation:
+    def __init__(self):
+        self.deck = Deck()
 
     def deal_cards_animation(self, players):
+        self.deck.empty()
         distance_between_cards = 50
         for player in players:
             player_x, player_y = player.x_y_position_on_board
@@ -17,10 +20,14 @@ class Animation:
             next_card_y = player_y + add_y - reduce_y
             for card in sorted(player.cards, key=lambda obj: (obj.suit, obj.rank)):
                 animation_card = CardSprite(card.suit, card.rank, next_card_x, next_card_y,
-                                            player.rotation_degrees_of_own_cards)
+                                            player.rotation_degrees_of_own_cards, player)
                 next_card_x += add_x
                 next_card_y += add_y
-                animation_card.update()
+                self.deck.add(animation_card)
+        self.deck.draw(window)
+
+
+
 
     @staticmethod
     def define_movement_axis(player, distance_between_cards):
