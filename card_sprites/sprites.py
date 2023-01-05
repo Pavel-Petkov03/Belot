@@ -48,3 +48,13 @@ class CardSprite(pygame.sprite.Sprite):
 
     def rotate(self, degrees):
         self.image = pygame.transform.rotate(self.image, degrees)
+
+    def __getstate__(self):
+        return {
+            "suit": self.suit,
+            "rank": self.rank,
+            "start_pos": self.rect.center,
+            "owner": self.owner,
+            "player_rotation_degrees": self.player_rotation_degrees,
+            "destination_pos": self.destination_pos
+        }

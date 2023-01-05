@@ -36,9 +36,13 @@ class Game:
 
     def render_game(self, event_list):
         a = self.current_player.net.send({
-            "action": "deal_cards_3"
+            "action": "deal_cards"
         })
         print(a)
+        self.current_state = "animation"
+
+    def animation(self):
+        pass
 
     def render_start_dialog(self, event_list):
         self.all_start_boxes.update(event_list)

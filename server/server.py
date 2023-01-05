@@ -1,59 +1,13 @@
 import socket
 from _thread import start_new_thread
 import pickle
-from collections import deque
 from game_engine.server_game_engine import DealCardsHandler
-from players.simple_player import SimplePlayer
-
-
-class BelotServerEngine:
-    def __init__(self):
-        self.players = deque()  # the first one will give the cards
-
-    def accept_player_connection(self, data, connection=None):
-        player = SimplePlayer(data["name"], connection)
-        self.players.append(player)
-        print(self.players)
-        return {}
-
-    def get_args(self, data):
-        try:
-            result = data["params"]
-            return result
-        except KeyError:
-            return None
-
-    def load_func(self, data, func, conn):
-        args = self.get_args(data)
-        if args:
-            return func(args, connection=conn)
-        return func(connection=conn)
-
-    def customised_result(self, result):
-        if not result:
-            result = {
-                "data": "void"
-            }
-        else:
-            result = {
-                "data": result
-            }
-        return result
-
-    def dispatch_action(self, data, conn):
-        func = getattr(self, data["action"])
-        result = self.load_func(data, func, conn)
-        return self.customised_result(result)
-
-    def get_players(self, connection=None):
-        return self.players
-
-    def get_info(self, data, conn):
-        return self.dispatch_action(data, conn)
 
 
 class MainEngine(DealCardsHandler):
-    pass
+
+    def remove_player_on_disconnect(self, connection):
+        self.players = [player for player in self.players if player.connection != connection]
 
 
 class Server:
@@ -84,12 +38,14 @@ class Server:
 
     def thread(self, conn: socket.SocketType, address):
         while True:
-            data = conn.recv(2048)
-            reply = pickle.loads(data)
+            data = conn.recv(10000)
             if not data:
                 print("Disconnected")
                 conn.send(str.encode("THE CONNECTION HAS BEEN STOPPED"))
+                self.engine.remove_player_on_disconnect(conn)
                 break
+
+            reply = pickle.loads(data)
             reply = self.engine.get_info(reply, conn)
             conn.sendall(pickle.dumps(reply))
         conn.close()
