@@ -1,11 +1,9 @@
-import random
 import socket
 from _thread import start_new_thread
 import pickle
 from collections import deque
-
+from game_engine.server_game_engine import DealCardsHandler
 from players.simple_player import SimplePlayer
-from rendering_and_card_dealing_mechanics.generate_deck import generate_cards
 
 
 class BelotServerEngine:
@@ -47,36 +45,11 @@ class BelotServerEngine:
         result = self.load_func(data, func, conn)
         return self.customised_result(result)
 
-    def get_players(self):
+    def get_players(self, connection=None):
         return self.players
 
     def get_info(self, data, conn):
         return self.dispatch_action(data, conn)
-
-
-class DealCardsHandler(BelotServerEngine):
-
-    def __init__(self):
-        super().__init__()
-        self.cards = generate_cards()
-        random.shuffle(self.cards)
-        self.card_sprites = []
-
-    def trying(self, connection=None):
-        hand_taker = self.players[0]
-        self.get_n_cards_and_give_to_player(self.cards, 3, hand_taker)
-        current_players_deque = self.shift_to_player(connection, self.players.copy())
-        
-
-    def shift_to_player(self, connection, players_deque):
-        while connection != players_deque[0].connection:
-            players_deque.rotate()
-        return players_deque
-
-    def get_n_cards_and_give_to_player(self, cards, n, player):
-        for i in range(n):
-            card = cards.pop()
-            player.cards.append(card)
 
 
 class MainEngine(DealCardsHandler):

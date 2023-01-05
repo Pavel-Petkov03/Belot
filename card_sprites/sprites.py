@@ -7,18 +7,19 @@ WINDOW_HEIGHT, WINDOW_WIDTH = get_screen_size()
 class CardSprite(pygame.sprite.Sprite):
     cards_folder = "cards_png/"
 
-    def __init__(self, suit, rank, x_pos, y_pos, owner):
+    def __init__(self, suit, rank, start_pos, owner, rotation_degrees, destination_pos):
         pygame.sprite.Sprite.__init__(self)
         self.suit = suit
         self.rank = rank
         self.image = pygame.Surface((WINDOW_HEIGHT / 8, WINDOW_WIDTH / 12,))
         self.rect = self.image.get_rect()
-        self.rect.center = (x_pos, y_pos)
+        self.rect.center = start_pos
         self.image = self.load_image()
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
-        self.player_rotation_degrees = owner.rotation_degrees_of_own_cards
+        self.player_rotation_degrees = rotation_degrees
         self.make_card_rotation()
         self.owner = owner
+        self.destination_pos = destination_pos
 
     def make_card_rotation(self):
         self.rotate(self.player_rotation_degrees)

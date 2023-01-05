@@ -1,16 +1,13 @@
 import pygame
-from locals import *
+
+from rendering_and_card_dealing_mechanics.locals import suits, ranks
 
 
 class Card:
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
-        self.image = self.load_image()
 
-    def load_image(self):
-        location = f"{self.suit}_{self.rank}.png"
-        return pygame.image.load("../cards_pngs/" + location)
 
 
 def generate_cards():
