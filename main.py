@@ -1,5 +1,4 @@
 import pygame
-from players.player import Player
 from sprites.entry_text_box import TextBoxesGroup, SCREENSIZE, AllBoxes, TextBox
 
 
@@ -12,6 +11,7 @@ class Game:
         self.screen = self.get_screen()
         self.current_state = "render_start_dialog"
         self.all_start_boxes = self.load_boxes()
+        self.card_sprites = []
 
     def load_boxes(self):
         all_sprites = TextBoxesGroup()
@@ -35,14 +35,16 @@ class Game:
             pygame.display.flip()
 
     def render_game(self, event_list):
-        a = self.current_player.net.send({
+        response = self.current_player.net.send({
             "action": "deal_cards"
         })
-        print(a)
+        self.card_sprites = response["data"]
         self.current_state = "animation"
 
-    def animation(self):
-        pass
+    def animation(self, event_list):
+        for card in self.card_sprites:
+            card.image = card.load_image()
+            card.blit(self.screen)
 
     def render_start_dialog(self, event_list):
         self.all_start_boxes.update(event_list)
@@ -86,3 +88,4 @@ class Game:
 
 game = Game()
 game.run()
+

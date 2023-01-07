@@ -1,13 +1,15 @@
 import socket
 from _thread import start_new_thread
 import pickle
+from collections import deque
+
 from game_engine.server_game_engine import DealCardsHandler
 
 
 class MainEngine(DealCardsHandler):
 
     def remove_player_on_disconnect(self, connection):
-        self.players = [player for player in self.players if player.connection != connection]
+        self.players = deque([player for player in self.players if player.connection != connection])
 
 
 class Server:

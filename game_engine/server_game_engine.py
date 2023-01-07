@@ -67,6 +67,7 @@ class DealCardsHandler(BelotServerEngine):
         hand_taker = self.players[0]
         current_players_deque = self.shift_to_player(connection, deque(self.players.copy()))
         self.get_n_cards_and_give_to_player(self.cards, 3, hand_taker, current_players_deque)
+        self.players.rotate()
         return self.card_sprites
 
     def shift_to_player(self, connection, players_deque):
