@@ -43,7 +43,7 @@ class Game:
 
     def animation(self, event_list):
         for card in self.card_sprites:
-            card.image = card.load_image()
+            card.load_image()
             card.blit(self.screen)
 
     def render_start_dialog(self, event_list):
