@@ -42,7 +42,6 @@ class Game:
         self.current_state = "animation"
 
     def animation(self, event_list):
-        print(self.players)
         for player in self.players:
             for card in player.cards:
                 if card.rect is None:

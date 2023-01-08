@@ -1,3 +1,5 @@
+import math
+
 import pygame
 from utils import get_screen_size
 
@@ -7,29 +9,36 @@ WINDOW_HEIGHT, WINDOW_WIDTH = get_screen_size()
 class CardSprite(pygame.sprite.Sprite):
     cards_folder = "cards_pngs/"
 
-    def __init__(self, suit, rank, start_pos, owner, rotation_degrees, destination_pos):
+    def __init__(self, suit, rank, start_pos, owner):
         pygame.sprite.Sprite.__init__(self)
         self.suit = suit
         self.rank = rank
         self.image = pygame.Surface((WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8,))
         self.start_pos = start_pos
-        self.player_rotation_degrees = rotation_degrees
-        self.make_card_rotation()
+        self.player_rotation_degrees = None
         self.owner = owner
-        self.destination_pos = destination_pos
+        self.destination_pos = None
         self.rect = None
 
     def make_card_rotation(self):
         self.rotate(self.player_rotation_degrees)
 
     def calculate_destination_of_movement(self):
-        speed = 4
-        center_x = WINDOW_WIDTH / 2
-        center_y = WINDOW_HEIGHT / 2
-        step_x = int((center_x - self.rect.x) / 20)
-        step_y = int((center_y - self.rect.y) / 20)
-        self.rect.x += step_x * speed
-        self.rect.y += step_y * speed
+        current_x, current_y = self.rect.center
+        destination_x, destination_y = self.destination_pos
+
+        step_x = abs(current_x - destination_x)
+        step_y = abs(current_y - destination_y)
+        new_x = self.define_movement_axis(current_x, destination_x, step_x)
+        new_y = self.define_movement_axis(current_y, destination_y, step_y)
+        self.rect.center = (new_x, new_y)
+
+    def define_movement_axis(self, current_vertex, destination_vertex, step):
+        if current_vertex < destination_vertex:
+            current_vertex += step
+        else:
+            current_vertex -= step
+        return current_vertex
 
     # def draw(self):
     #     window.blit(self.image, self.rect)
@@ -43,7 +52,7 @@ class CardSprite(pygame.sprite.Sprite):
         self.image = pygame.image.load(self.cards_folder + location)
         self.rect.center = self.start_pos
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
-
+        self.make_card_rotation()
 
     def rotate(self, degrees):
         self.image = pygame.transform.rotate(self.image, degrees)

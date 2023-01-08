@@ -65,46 +65,46 @@ class DealCardsHandler(BelotServerEngine):
 
     def deal_cards(self, connection=None):
         hand_taker = self.players[0]
-        print(hand_taker)
         current_players_deque = self.shift_to_player(connection, deque(self.players.copy()))
         self.get_n_cards_and_give_to_player(self.cards, 3, hand_taker, current_players_deque)
-        self.players.rotate()
-        return self.players
+        return current_players_deque
 
     def shift_to_player(self, connection, players_deque):
         while connection != players_deque[0].connection:
             players_deque.rotate()
-
         return players_deque
 
     def get_n_cards_and_give_to_player(self, cards, n, player, current_players_deque):
-        if self.receivers_count == 4:
-            [cards.pop() for _ in range(n)]
-            self.receivers_count = 0
-        else:
-            self.receivers_count += 1
-        for i in range(n):
-            card = cards[-(i + 1)]
+        self.receivers_count += 1
 
-            rank = card.rank
-            suit = card.suit
-            rotation = self.calculate_degrees(current_players_deque, player)
-            card_sprite = CardSprite(
-                suit,
-                rank, (WIDTH / 2, HEIGHT / 2),
-                player,
-                rotation,
-                self.calculate_destination_pos(player, rotation)
-            )
-            player.cards.append(card_sprite)
+        if self.receivers_count == 4:
+            self.receivers_count = 0
+        if self.receivers_count == 1:
+            for i in range(n):
+                card = cards.pop()
+
+                rank = card.rank
+                suit = card.suit
+                card_sprite = CardSprite(
+                    suit,
+                    rank, (WIDTH / 2, HEIGHT / 2),
+                    player,
+                )
+                player.cards.append(card_sprite)
+        for person in current_players_deque:
+            for index in range(len(person.cards)):
+                card = person.cards[index]
+                rotation = self.calculate_degrees(current_players_deque, player)
+                card.player_rotation_degrees = rotation
+                card.destination_pos = self.calculate_destination_pos(index, rotation)
 
     def calculate_degrees(self, current_players_deque, player):
         index = current_players_deque.index(player)
         return index * 90
 
-    def calculate_destination_pos(self, player, rotation):
+    def calculate_destination_pos(self, index, rotation):
         MARGIN = 100
-        cards_padding = 20 * len(player.cards)
+        cards_padding = 20 * index
         dest_dict = {
             0: (WIDTH / 2 - cards_padding, HEIGHT - MARGIN),
             90: (WIDTH - MARGIN, HEIGHT / 2 - cards_padding),
