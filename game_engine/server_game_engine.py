@@ -61,14 +61,15 @@ class DealCardsHandler(BelotServerEngine):
         super().__init__()
         self.cards = generate_cards()
         random.shuffle(self.cards)
-        self.card_sprites = []
+        self.receivers_count = 0
 
     def deal_cards(self, connection=None):
         hand_taker = self.players[0]
+        print(hand_taker)
         current_players_deque = self.shift_to_player(connection, deque(self.players.copy()))
         self.get_n_cards_and_give_to_player(self.cards, 3, hand_taker, current_players_deque)
         self.players.rotate()
-        return self.card_sprites
+        return self.players
 
     def shift_to_player(self, connection, players_deque):
         while connection != players_deque[0].connection:
@@ -77,9 +78,13 @@ class DealCardsHandler(BelotServerEngine):
         return players_deque
 
     def get_n_cards_and_give_to_player(self, cards, n, player, current_players_deque):
+        if self.receivers_count == 4:
+            [cards.pop() for _ in range(n)]
+            self.receivers_count = 0
+        else:
+            self.receivers_count += 1
         for i in range(n):
-            card = cards.pop()
-            player.cards.append(card)
+            card = cards[-(i + 1)]
 
             rank = card.rank
             suit = card.suit
@@ -91,7 +96,7 @@ class DealCardsHandler(BelotServerEngine):
                 rotation,
                 self.calculate_destination_pos(player, rotation)
             )
-            self.card_sprites.append(card_sprite)
+            player.cards.append(card_sprite)
 
     def calculate_degrees(self, current_players_deque, player):
         index = current_players_deque.index(player)

@@ -43,7 +43,9 @@ class Game:
 
     def animation(self, event_list):
         for card in self.card_sprites:
-            card.load_image()
+            if card.rect is None:
+                card.load_image()
+            card.calculate_destination_of_movement()
             card.blit(self.screen)
 
     def render_start_dialog(self, event_list):

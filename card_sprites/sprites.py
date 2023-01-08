@@ -11,12 +11,13 @@ class CardSprite(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.suit = suit
         self.rank = rank
-        self.image = pygame.Surface((WINDOW_HEIGHT / 8, WINDOW_WIDTH / 12,))
+        self.image = pygame.Surface((WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8,))
         self.start_pos = start_pos
         self.player_rotation_degrees = rotation_degrees
         self.make_card_rotation()
         self.owner = owner
         self.destination_pos = destination_pos
+        self.rect = None
 
     def make_card_rotation(self):
         self.rotate(self.player_rotation_degrees)
@@ -38,11 +39,10 @@ class CardSprite(pygame.sprite.Sprite):
 
     def load_image(self):
         location = f"{self.suit}_{self.rank}.png"
-        self.image = pygame.Surface((WINDOW_HEIGHT / 16, WINDOW_WIDTH / 36,))
-        self.rect = self.image.get_rect()
+        self.rect = pygame.Rect((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8))
         self.image = pygame.image.load(self.cards_folder + location)
         self.rect.center = self.start_pos
-        # self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
     def __repr__(self):
         return f"{self.rank}_of_{self.suit} sprite"
@@ -61,4 +61,5 @@ class CardSprite(pygame.sprite.Sprite):
             "destination_pos": self.destination_pos,
             "owner": self.owner,
             "player_rotation_degrees": self.player_rotation_degrees,
+            "rect": self.rect
         }
