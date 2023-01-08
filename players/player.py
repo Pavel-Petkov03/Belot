@@ -14,6 +14,3 @@ class Player:
             },
             "action": "accept_player_connection"
         })
-
-    def __repr__(self):
-        return f'My name is {self.name}'

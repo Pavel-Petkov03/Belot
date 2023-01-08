@@ -11,7 +11,7 @@ class Game:
         self.screen = self.get_screen()
         self.current_state = "render_start_dialog"
         self.all_start_boxes = self.load_boxes()
-        self.card_sprites = []
+        self.players = []
 
     def load_boxes(self):
         all_sprites = TextBoxesGroup()
@@ -38,15 +38,17 @@ class Game:
         response = self.current_player.net.send({
             "action": "deal_cards"
         })
-        self.card_sprites = response["data"]
+        self.players = response["data"]
         self.current_state = "animation"
 
     def animation(self, event_list):
-        for card in self.card_sprites:
-            if card.rect is None:
-                card.load_image()
-            card.calculate_destination_of_movement()
-            card.blit(self.screen)
+        print(self.players)
+        for player in self.players:
+            for card in player.cards:
+                if card.rect is None:
+                    card.load_image()
+                card.calculate_destination_of_movement()
+                card.blit(self.screen)
 
     def render_start_dialog(self, event_list):
         self.all_start_boxes.update(event_list)

@@ -11,3 +11,4 @@ class SimplePlayer:
             "team": self.team,
             "cards": self.cards,
         }
+

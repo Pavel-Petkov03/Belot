@@ -44,8 +44,6 @@ class CardSprite(pygame.sprite.Sprite):
         self.rect.center = self.start_pos
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
-    def __repr__(self):
-        return f"{self.rank}_of_{self.suit} sprite"
 
     def rotate(self, degrees):
         self.image = pygame.transform.rotate(self.image, degrees)
