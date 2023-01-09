@@ -8,6 +8,7 @@ WINDOW_HEIGHT, WINDOW_WIDTH = get_screen_size()
 
 class CardSprite(pygame.sprite.Sprite):
     cards_folder = "cards_pngs/"
+    animation_divider = 20
 
     def __init__(self, suit, rank, start_pos, owner):
         pygame.sprite.Sprite.__init__(self)
@@ -19,16 +20,20 @@ class CardSprite(pygame.sprite.Sprite):
         self.owner = owner
         self.destination_pos = None
         self.rect = None
+        self.given = False
 
     def make_card_rotation(self):
         self.rotate(self.player_rotation_degrees)
+
+    def on_wanted_position(self):
+        return self.rect.centerx == self.destination_pos[0] and self.rect.centery == self.destination_pos[1]
 
     def calculate_destination_of_movement(self):
         current_x, current_y = self.rect.center
         destination_x, destination_y = self.destination_pos
 
-        step_x = abs(current_x - destination_x)
-        step_y = abs(current_y - destination_y)
+        step_x = abs(current_x - destination_x) / self.animation_divider
+        step_y = abs(current_y - destination_y) / self.animation_divider
         new_x = self.define_movement_axis(current_x, destination_x, step_x)
         new_y = self.define_movement_axis(current_y, destination_y, step_y)
         self.rect.center = (new_x, new_y)
@@ -38,6 +43,8 @@ class CardSprite(pygame.sprite.Sprite):
             current_vertex += step
         else:
             current_vertex -= step
+        if abs(current_vertex - destination_vertex) <= self.animation_divider:
+            return destination_vertex
         return current_vertex
 
     # def draw(self):
@@ -68,5 +75,9 @@ class CardSprite(pygame.sprite.Sprite):
             "destination_pos": self.destination_pos,
             "owner": self.owner,
             "player_rotation_degrees": self.player_rotation_degrees,
-            "rect": self.rect
+            "rect": self.rect,
+            "given" : self.given
         }
+
+    def __repr__(self):
+        return "My name is Jeff"

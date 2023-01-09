@@ -12,6 +12,7 @@ class Game:
         self.current_state = "render_start_dialog"
         self.all_start_boxes = self.load_boxes()
         self.players = []
+        self.cards = []
 
     def load_boxes(self):
         all_sprites = TextBoxesGroup()
@@ -19,6 +20,10 @@ class Game:
         all_boxes = instance_of_all_boxes.all_boxes
         all_sprites.add(*all_boxes)
         return all_sprites
+
+    def gameplay(self, event_list):
+        for card in self.cards:
+            card.blit(self.screen)
 
     def run(self):
 
@@ -35,19 +40,33 @@ class Game:
             pygame.display.flip()
 
     def render_game(self, event_list):
+        if len(self.cards) == 32:
+            self.current_state = "gameplay"
+            return
         response = self.current_player.net.send({
-            "action": "deal_cards"
+            "action": "deal_cards",
+            "params": {
+                "wanted_cards": self.calculate_wanted_cards()
+            }
         })
-        self.players = response["data"]
+        self.cards = response["data"]
         self.current_state = "animation"
 
+    def calculate_wanted_cards(self):
+        if len(self.cards) < 12 or len(self.cards) > 20:
+            return 3
+        return 2
+
     def animation(self, event_list):
-        for player in self.players:
-            for card in player.cards:
-                if card.rect is None:
-                    card.load_image()
+        for card in self.cards:
+            if card.rect is None:
+                card.load_image()
+            if not card.given:
                 card.calculate_destination_of_movement()
-                card.blit(self.screen)
+            if card.on_wanted_position():
+                card.given = True
+                self.current_state = "render_game"
+            card.blit(self.screen)
 
     def render_start_dialog(self, event_list):
         self.all_start_boxes.update(event_list)
@@ -91,4 +110,3 @@ class Game:
 
 game = Game()
 game.run()
-

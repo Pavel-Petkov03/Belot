@@ -63,11 +63,20 @@ class DealCardsHandler(BelotServerEngine):
         random.shuffle(self.cards)
         self.receivers_count = 0
 
-    def deal_cards(self, connection=None):
+    def deal_cards(self, data, connection=None):
         hand_taker = self.players[0]
+        wanted_cards = data["wanted_cards"]
         current_players_deque = self.shift_to_player(connection, deque(self.players.copy()))
-        self.get_n_cards_and_give_to_player(self.cards, 3, hand_taker, current_players_deque)
-        return current_players_deque
+        self.get_n_cards_and_give_to_player(self.cards, wanted_cards, hand_taker, current_players_deque)
+        return self.all_cards(current_players_deque)
+
+    @staticmethod
+    def all_cards(current_players_deque):
+        cards = []
+        for player in current_players_deque:
+            if player.cards:
+                cards.extend(player.cards)
+        return cards
 
     def shift_to_player(self, connection, players_deque):
         while connection != players_deque[0].connection:
@@ -79,6 +88,7 @@ class DealCardsHandler(BelotServerEngine):
 
         if self.receivers_count == 4:
             self.receivers_count = 0
+            self.players.rotate()
         if self.receivers_count == 1:
             for i in range(n):
                 card = cards.pop()
@@ -94,9 +104,15 @@ class DealCardsHandler(BelotServerEngine):
         for person in current_players_deque:
             for index in range(len(person.cards)):
                 card = person.cards[index]
-                rotation = self.calculate_degrees(current_players_deque, player)
+                rotation = self.calculate_degrees(current_players_deque, person)
                 card.player_rotation_degrees = rotation
                 card.destination_pos = self.calculate_destination_pos(index, rotation)
+
+        # for index in range(len(player.cards)):
+        #     card = player.cards[index]
+        #     rotation = self.calculate_degrees(current_players_deque, player)
+        #     card.player_rotation_degrees = rotation
+        #     card.destination_pos = self.calculate_destination_pos(index, rotation)
 
     def calculate_degrees(self, current_players_deque, player):
         index = current_players_deque.index(player)
@@ -104,7 +120,7 @@ class DealCardsHandler(BelotServerEngine):
 
     def calculate_destination_pos(self, index, rotation):
         MARGIN = 100
-        cards_padding = 20 * index
+        cards_padding = 50 * index
         dest_dict = {
             0: (WIDTH / 2 - cards_padding, HEIGHT - MARGIN),
             90: (WIDTH - MARGIN, HEIGHT / 2 - cards_padding),

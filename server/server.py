@@ -2,7 +2,7 @@ import socket
 from _thread import start_new_thread
 import pickle
 from collections import deque
-
+import struct
 from game_engine.server_game_engine import DealCardsHandler
 
 
@@ -40,7 +40,7 @@ class Server:
 
     def thread(self, conn: socket.SocketType, address):
         while True:
-            data = conn.recv(10000)
+            data = conn.recv(10000000)
             if not data:
                 print("Disconnected")
                 conn.send(str.encode("THE CONNECTION HAS BEEN STOPPED"))
@@ -49,7 +49,11 @@ class Server:
 
             reply = pickle.loads(data)
             reply = self.engine.get_info(reply, conn)
-            conn.sendall(pickle.dumps(reply))
+            data = pickle.dumps(reply)
+            size = len(data)
+            size_in_4_bytes = struct.pack("I", size)
+            conn.send(size_in_4_bytes)
+            conn.send(data)
         conn.close()
 
 
