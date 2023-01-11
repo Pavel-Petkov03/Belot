@@ -1,4 +1,6 @@
 import pygame
+
+from announcements import AnnounceModal
 from sprites.entry_text_box import TextBoxesGroup, SCREENSIZE, AllBoxes, TextBox
 
 
@@ -12,6 +14,7 @@ class Game:
         self.current_state = "render_start_dialog"
         self.all_start_boxes = self.load_boxes()
         self.cards = {}
+        self.announcements_modal = AnnounceModal()
 
     def load_boxes(self):
         all_sprites = TextBoxesGroup()
@@ -21,14 +24,26 @@ class Game:
         return all_sprites
 
     def gameplay(self, event_list):
+        self.render_cards()
+
+    def render_cards(self):
         for sprite in (self.cards.values()):
             sprite.blit(self.screen)
 
-    def announcements(self):
+    def announcements(self, event_list):
+        self.render_cards()
 
-        self.current_player.net.send({
-            "action": "make_announcements"
+        response = self.current_player.net.send({
+            "action": "check_announcements_order"
         })
+        on_move = response["data"]
+        if on_move:
+            self.current_state = "render_announcements_modal"
+
+    def render_announcements_modal(self, event_list):
+        self.announcements_modal.toggle_modal(
+
+        )
 
     def run(self):
 
