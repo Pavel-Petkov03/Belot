@@ -27,11 +27,6 @@ class AnnounceRect(pygame.sprite.Sprite):
 class AnnounceModal(pygame.sprite.Group):
     folder_prefix = "announce_png/"
 
-    def __init__(self):
-        super(AnnounceModal, self).__init__(self)
-        self.available_fields = [
-
-        ]
 
     def toggle_modal(self, available_dict):
         self.empty()

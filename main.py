@@ -42,8 +42,11 @@ class Game:
 
     def render_announcements_modal(self, event_list):
         self.announcements_modal.toggle_modal(
-
+            self.calculate_available_dict()
         )
+
+    def calculate_available_dict(self):
+        return {}
 
     def run(self):
 

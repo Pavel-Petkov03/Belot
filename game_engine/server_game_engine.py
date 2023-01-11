@@ -108,6 +108,7 @@ class DealCardsHandler(BelotServerEngine):
                 card.destination_pos = self.calculate_destination_pos(index, rotation)
                 index += 1
 
+
     def calculate_degrees(self, current_players_deque, player):
         index = current_players_deque.index(player)
         return index * 90
