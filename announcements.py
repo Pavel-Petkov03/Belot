@@ -52,5 +52,3 @@ class AnnounceModal(pygame.sprite.Group):
     def get_location_name(self, name):
         return self.folder_prefix + "_".join(name.lower().split(" ")) + ".png"
 
-    def available_sprites(self):
-        return filter(lambda sprite: sprite.available is True, self.sprites())

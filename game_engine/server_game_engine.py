@@ -16,7 +16,6 @@ class BelotServerEngine:
     def accept_player_connection(self, data, connection=None):
         player = SimplePlayer(data["name"], connection)
         self.players.append(player)
-        print(self.players)
         return {}
 
     def get_args(self, data):
@@ -78,7 +77,7 @@ class DealCardsHandler(BelotServerEngine):
 
     def shift_to_player(self, connection, players_deque):
         while connection != players_deque[0].connection:
-            self.make_shift()
+            players_deque.append(players_deque.popleft())
         return players_deque
 
     def get_n_cards_and_give_to_player(self, cards, n, player, current_players_deque):
@@ -108,7 +107,6 @@ class DealCardsHandler(BelotServerEngine):
                 card.destination_pos = self.calculate_destination_pos(index, rotation)
                 index += 1
 
-
     def calculate_degrees(self, current_players_deque, player):
         index = current_players_deque.index(player)
         return index * 90
@@ -128,9 +126,14 @@ class DealCardsHandler(BelotServerEngine):
 class AnnouncementsHandler(BelotServerEngine):
     def __init__(self):
         super().__init__()
-        self.players_announcements_order = deque(self.players.copy())
+        self.players_announcements_order = None
+
+    def set_players_announcements_order_deque(self):
+        if self.players_announcements_order is None:
+            self.players_announcements_order = deque(self.players.copy())
 
     def check_announcements_order(self, connection=None):
+        self.set_players_announcements_order_deque()
         player_on_move = self.players_announcements_order[0]
         connected_player = self.get_player_by_connection(connection)
         return player_on_move == connected_player

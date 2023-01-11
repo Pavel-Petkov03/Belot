@@ -8,7 +8,7 @@ WINDOW_HEIGHT, WINDOW_WIDTH = get_screen_size()
 
 class CardSprite(pygame.sprite.Sprite):
     cards_folder = "cards_pngs/"
-    animation_divider = 10
+    animation_divider = 20
 
     def __init__(self, suit, rank, start_pos, owner):
         pygame.sprite.Sprite.__init__(self)

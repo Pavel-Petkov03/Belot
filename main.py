@@ -40,10 +40,13 @@ class Game:
         if on_move:
             self.current_state = "render_announcements_modal"
 
+
     def render_announcements_modal(self, event_list):
+        self.render_cards()
         self.announcements_modal.toggle_modal(
             self.calculate_available_dict()
         )
+        self.announcements_modal.draw(self.screen)
 
     def calculate_available_dict(self):
         return {}
