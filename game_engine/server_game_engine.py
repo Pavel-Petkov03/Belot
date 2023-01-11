@@ -33,14 +33,9 @@ class BelotServerEngine:
         return func(connection=conn)
 
     def customised_result(self, result):
-        if not result:
-            result = {
-                "data": "void"
-            }
-        else:
-            result = {
-                "data": result
-            }
+        result = {
+            "data": result
+        }
         return result
 
     def dispatch_action(self, data, conn):
@@ -101,31 +96,26 @@ class DealCardsHandler(BelotServerEngine):
                     player,
                 )
                 player.cards.append(card_sprite)
-        for person in current_players_deque:
-            for index in range(len(person.cards)):
-                card = person.cards[index]
+        for person_index in range(len(current_players_deque)):
+            person = current_players_deque[person_index]
+            index = 0
+            for card in person.cards:
                 rotation = self.calculate_degrees(current_players_deque, person)
                 card.player_rotation_degrees = rotation
                 card.destination_pos = self.calculate_destination_pos(index, rotation)
-
-        # for index in range(len(player.cards)):
-        #     card = player.cards[index]
-        #     rotation = self.calculate_degrees(current_players_deque, player)
-        #     card.player_rotation_degrees = rotation
-        #     card.destination_pos = self.calculate_destination_pos(index, rotation)
+                index += 1
 
     def calculate_degrees(self, current_players_deque, player):
         index = current_players_deque.index(player)
         return index * 90
 
     def calculate_destination_pos(self, index, rotation):
-        MARGIN = 100
         cards_padding = 50 * index
         dest_dict = {
-            0: (WIDTH / 2 - cards_padding, HEIGHT - MARGIN),
-            90: (WIDTH - MARGIN, HEIGHT / 2 - cards_padding),
-            180: (WIDTH / 2 - cards_padding, 0 + MARGIN),
-            270: (0 + MARGIN, HEIGHT / 2 - cards_padding)
+            0: (WIDTH / 2 - cards_padding, HEIGHT - WIDTH / 12),
+            90: (WIDTH - WIDTH / 12, HEIGHT / 2 - cards_padding),
+            180: (WIDTH / 2 - cards_padding, 0 + WIDTH / 12),
+            270: (0 + WIDTH / 12, HEIGHT / 2 - cards_padding)
         }
 
         return dest_dict[rotation]

@@ -11,8 +11,7 @@ class Game:
         self.screen = self.get_screen()
         self.current_state = "render_start_dialog"
         self.all_start_boxes = self.load_boxes()
-        self.players = []
-        self.cards = []
+        self.cards = {}
 
     def load_boxes(self):
         all_sprites = TextBoxesGroup()
@@ -22,8 +21,14 @@ class Game:
         return all_sprites
 
     def gameplay(self, event_list):
-        for card in self.cards:
-            card.blit(self.screen)
+        for sprite in (self.cards.values()):
+            sprite.blit(self.screen)
+
+    def announcements(self):
+
+        self.current_player.net.send({
+            "action": "make_announcements"
+        })
 
     def run(self):
 
@@ -43,29 +48,41 @@ class Game:
         if len(self.cards) == 32:
             self.current_state = "gameplay"
             return
+        elif len(self.cards) == 20:
+            self.current_state = "announcements"
+            return
         response = self.current_player.net.send({
             "action": "deal_cards",
             "params": {
                 "wanted_cards": self.calculate_wanted_cards()
             }
         })
-        self.cards = response["data"]
+        all_cards = response["data"]
+        self.add_cards(all_cards)
         self.current_state = "animation"
 
+    def add_cards(self, all_cards):
+        for card in all_cards:
+            key = f'suit:{card.suit}rank:{card.rank}'
+            if key not in self.cards:
+                self.cards[key] = card
+            else:
+                self.cards[key].rect.center = card.destination_pos
+
     def calculate_wanted_cards(self):
-        if len(self.cards) < 12 or len(self.cards) > 20:
+        if len(self.cards) < 12 or len(self.cards) >= 20:
             return 3
         return 2
 
     def animation(self, event_list):
-        for card in self.cards:
-            if card.rect is None:
-                card.load_image()
+        for card in self.cards.values():
             if not card.given:
+                if card.rect is None:
+                    card.load_image()
                 card.calculate_destination_of_movement()
-            if card.on_wanted_position():
-                card.given = True
-                self.current_state = "render_game"
+                if card.on_wanted_position():
+                    card.given = True
+                    self.current_state = "render_game"
             card.blit(self.screen)
 
     def render_start_dialog(self, event_list):

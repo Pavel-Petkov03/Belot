@@ -8,7 +8,7 @@ WINDOW_HEIGHT, WINDOW_WIDTH = get_screen_size()
 
 class CardSprite(pygame.sprite.Sprite):
     cards_folder = "cards_pngs/"
-    animation_divider = 20
+    animation_divider = 10
 
     def __init__(self, suit, rank, start_pos, owner):
         pygame.sprite.Sprite.__init__(self)
@@ -76,8 +76,8 @@ class CardSprite(pygame.sprite.Sprite):
             "owner": self.owner,
             "player_rotation_degrees": self.player_rotation_degrees,
             "rect": self.rect,
-            "given" : self.given
+            "given": self.given,
         }
 
     def __repr__(self):
-        return "My name is Jeff"
+        return f'{self.suit} {self.rank}'
