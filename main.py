@@ -2,6 +2,7 @@ import pygame
 
 from announcements import AnnounceModal
 from sprites.entry_text_box import TextBoxesGroup, SCREENSIZE, AllBoxes, TextBox
+from loading_bar import TimeRemainingBar
 
 
 class Game:
@@ -15,6 +16,8 @@ class Game:
         self.all_start_boxes = self.load_boxes()
         self.cards = {}
         self.announcements_modal = AnnounceModal()
+        self.time_remaining_bar = TimeRemainingBar()
+        self.counter = 100
 
     def load_boxes(self):
         all_sprites = TextBoxesGroup()
@@ -40,13 +43,17 @@ class Game:
         if on_move:
             self.current_state = "render_announcements_modal"
 
-
     def render_announcements_modal(self, event_list):
         self.render_cards()
-        self.announcements_modal.toggle_modal(
-            self.calculate_available_dict()
-        )
-        self.announcements_modal.draw(self.screen)
+        # self.announcements_modal.toggle_modal(
+        #     self.calculate_available_dict()
+        # )
+        # self.announcements_modal.draw(self.screen)
+        self.current_player.net.send({
+            "action" : ""
+        })
+        self.time_remaining_bar.draw(self.screen, self.counter / 100, (100, 100))
+        self.counter += 1
 
     def calculate_available_dict(self):
         return {}

@@ -3,18 +3,18 @@ import math
 import pygame
 from utils import get_screen_size
 
-WINDOW_HEIGHT, WINDOW_WIDTH = get_screen_size()
+WINDOW_WIDTH, WINDOW_HEIGHT = get_screen_size()
 
 
 class CardSprite(pygame.sprite.Sprite):
     cards_folder = "cards_pngs/"
-    animation_divider = 20
+    animation_divider = 10
 
     def __init__(self, suit, rank, start_pos, owner):
         pygame.sprite.Sprite.__init__(self)
         self.suit = suit
         self.rank = rank
-        self.image = pygame.Surface((WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8,))
+        self.image = pygame.Surface((WINDOW_WIDTH / 12, WINDOW_HEIGHT / 4,))
         self.start_pos = start_pos
         self.player_rotation_degrees = None
         self.owner = owner
@@ -55,7 +55,7 @@ class CardSprite(pygame.sprite.Sprite):
 
     def load_image(self):
         location = f"{self.suit}_{self.rank}.png"
-        self.rect = pygame.Rect((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (WINDOW_WIDTH / 12, WINDOW_HEIGHT / 8))
+        self.rect = pygame.Rect((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (WINDOW_WIDTH / 18, WINDOW_HEIGHT / 6))
         self.image = pygame.image.load(self.cards_folder + location)
         self.rect.center = self.start_pos
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))

@@ -27,11 +27,8 @@ class AnnounceRect(pygame.sprite.Sprite):
 class AnnounceModal(pygame.sprite.Group):
     folder_prefix = "announce_png/"
 
-
     def toggle_modal(self, available_dict):
-        self.empty()
-        margin = WINDOW_WIDTH / 5
-        r = pygame.Rect(margin, margin, WINDOW_WIDTH - margin, WINDOW_HEIGHT - margin)
+        r = pygame.Rect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4)
         r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
         for x_axis in range(2):
             for y_axis in range(4):
@@ -51,4 +48,3 @@ class AnnounceModal(pygame.sprite.Group):
 
     def get_location_name(self, name):
         return self.folder_prefix + "_".join(name.lower().split(" ")) + ".png"
-
