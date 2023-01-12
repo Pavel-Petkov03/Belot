@@ -99,3 +99,4 @@ class AllBoxes:
         player.connect()
         self.game_state.current_player = player
 
+
