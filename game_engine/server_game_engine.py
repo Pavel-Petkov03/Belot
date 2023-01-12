@@ -127,10 +127,16 @@ class AnnouncementsHandler(BelotServerEngine):
     def __init__(self):
         super().__init__()
         self.players_announcements_order = None
+        self.sockets_connected = 0
 
     def set_players_announcements_order_deque(self):
+        self.sockets_connected += 1
         if self.players_announcements_order is None:
             self.players_announcements_order = deque(self.players.copy())
+        else:
+            if self.sockets_connected == 4:
+                self.sockets_connected = 0
+                self.players_announcements_order.append(self.players_announcements_order.popleft())
 
     def check_announcements_order(self, connection=None):
         self.set_players_announcements_order_deque()

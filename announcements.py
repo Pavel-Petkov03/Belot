@@ -27,6 +27,10 @@ class AnnounceRect(pygame.sprite.Sprite):
 class AnnounceModal(pygame.sprite.Group):
     folder_prefix = "announce_png/"
 
+    def __init__(self):
+        pygame.sprite.Group.__init__(self, [])
+        self.announced_game = None
+
     def toggle_modal(self, available_dict):
         r = pygame.Rect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4)
         r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
@@ -48,3 +52,17 @@ class AnnounceModal(pygame.sprite.Group):
 
     def get_location_name(self, name):
         return self.folder_prefix + "_".join(name.lower().split(" ")) + ".png"
+
+    def click_event_listener(self, event_list):
+        for event in event_list:
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                for sprite in self.sprites():
+                    if self.is_available(sprite) and sprite.rect.collidepoint(*pos):
+                        self.announced_game = sprite.rect_title
+                        return True
+        return False
+
+    @staticmethod
+    def is_available(sprite):
+        return sprite.available

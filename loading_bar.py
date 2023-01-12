@@ -11,12 +11,11 @@ class TimeRemainingBar:
     def draw(self, screen, progress, bar_position):
         pygame.draw.rect(screen, self.border_color, (*bar_position, *self.bar_size), 1)
         inner_pos = (bar_position[0] + 3, bar_position[1] + 3)
-        inner_size = (self.bar_size[0] - 6 * progress, self.bar_size[1] - 6)
+        inner_size = (self.calculate_time_cursor_position(progress), self.bar_size[1] - 6)
         pygame.draw.rect(screen, self.bar_color, (*inner_pos, *inner_size))
 
+    def time_is_up(self, progress):
+        return self.calculate_time_cursor_position(progress) <= 0
 
-
-
-
-
-
+    def calculate_time_cursor_position(self, progress):
+        return self.bar_size[0] - 6 * progress

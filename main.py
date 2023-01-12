@@ -17,7 +17,8 @@ class Game:
         self.cards = {}
         self.announcements_modal = AnnounceModal()
         self.time_remaining_bar = TimeRemainingBar()
-        self.counter = 100
+        self.pass_list = []
+        self.announcements_done = False
 
     def load_boxes(self):
         all_sprites = TextBoxesGroup()
@@ -35,25 +36,38 @@ class Game:
 
     def announcements(self, event_list):
         self.render_cards()
-
         response = self.current_player.net.send({
             "action": "check_announcements_order"
         })
         on_move = response["data"]
         if on_move:
+            self.announcements_modal.toggle_modal(
+                self.calculate_available_dict()
+            )
             self.current_state = "render_announcements_modal"
 
     def render_announcements_modal(self, event_list):
+        if len(self.pass_list) == 4:
+            self.current_state = "render_game"
+            self.announcements_done = True
+            return
         self.render_cards()
-        # self.announcements_modal.toggle_modal(
-        #     self.calculate_available_dict()
-        # )
-        # self.announcements_modal.draw(self.screen)
-        self.current_player.net.send({
-            "action" : ""
+        self.announcements_modal.draw(self.screen)
+
+        is_clicked = self.announcements_modal.click_event_listener(event_list)
+        if is_clicked:
+            self.add_to_pass_list(self.announcements_modal.announced_game)
+            self.current_state = "render_announcements_modal"
+            return
+
+        response = self.current_player.net.send({
+            "action": "loading_bar"
         })
-        self.time_remaining_bar.draw(self.screen, self.counter / 100, (100, 100))
-        self.counter += 1
+        position = response["data"]["position"]
+        counter = response["data"]["counter"]
+        self.time_remaining_bar.draw(self.screen, counter / 100, position)
+        if self.time_remaining_bar.time_is_up(counter / 100):
+            self.add_to_pass_list("Pass")
 
     def calculate_available_dict(self):
         return {}
@@ -76,7 +90,7 @@ class Game:
         if len(self.cards) == 32:
             self.current_state = "gameplay"
             return
-        elif len(self.cards) == 20:
+        elif len(self.cards) == 20 and not self.announcements_done:
             self.current_state = "announcements"
             return
         response = self.current_player.net.send({
@@ -152,6 +166,15 @@ class Game:
     def scale_image(self, image, scale_cord):
         return pygame.transform.scale(image, scale_cord)
 
+    def add_to_pass_list(self, announcement):
+        if announcement == "Pass":
+            self.pass_list.append("Pass")
+        else:
+            self.pass_list.clear()
+
+
+class AnnouncementsClient(Game):
+    pass
 
 game = Game()
 game.run()
