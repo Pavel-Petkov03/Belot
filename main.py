@@ -17,8 +17,8 @@ class Game:
         self.cards = {}
         self.announcements_done = False
 
-    def gameplay(self, event_list):
-        self.render_cards()
+    def set_current_state(self, new_state):
+        self.current_state = new_state
 
     def render_cards(self):
         for sprite in (self.cards.values()):
@@ -46,10 +46,13 @@ class Game:
 
 
 class PreloadClientConnector(ClientConnector):
-    pass
+    def socket_get_players(self):
+        return self.send("get_players")
 
 
 class PreloadClient(Game, PreloadClientConnector):
+    MAX_PLAYERS = 4
+
     def __init__(self):
         super().__init__()
         self.all_start_boxes = self.load_boxes()
@@ -59,13 +62,11 @@ class PreloadClient(Game, PreloadClientConnector):
         self.all_start_boxes.draw(self.screen)
 
     def render_waiting_screen(self, event_list):
-        reply = self.current_player.net.send({
-            "action": "get_players"
-        })
+        reply = self.socket_get_players()
 
         current_players_length = len(reply["data"])
-        if current_players_length == 4:
-            self.current_state = "render_game"
+        if current_players_length == self.MAX_PLAYERS:
+            self.set_current_state("render_game")
             return
 
         text_box = TextBox(100, 100, 200, 200, font="Sans Serif", font_size=50, backcolor="green",
@@ -82,7 +83,20 @@ class PreloadClient(Game, PreloadClientConnector):
 
 
 class AnnouncementClientConnector(ClientConnector):
-    pass
+    def socket_check_announcements_order(self):
+        return self.send("check_announcements_order")
+
+    def socket_get_announcement(self):
+        return self.send("get_announcement")
+
+    def socket_get_pass_list_len(self):
+        return self.send("get_pass_counter")
+
+    def socket_set_announcement(self, announcement):
+        return self.send("set_announcement", params={"announced_game": announcement})
+
+    def socket_get_loading_bar_info(self):
+        return self.send("get_loading_bar_info")
 
 
 class AnnouncementsClient(Game, AnnouncementClientConnector):
@@ -90,31 +104,26 @@ class AnnouncementsClient(Game, AnnouncementClientConnector):
         super().__init__()
         self.announcements_modal = AnnounceModal()
         self.time_remaining_bar = TimeRemainingBar()
-        self.pass_list = []
         self.announcements_done = False
 
     def announcements(self, event_list):
         self.render_cards()
-        response = self.current_player.net.send({
-            "action": "check_announcements_order"
-        })
+        response = self.socket_check_announcements_order()
         on_move = response["data"]
+
         if on_move:
-            self.announcements_modal.toggle_modal(
+            self.announcements_modal.load(
                 self.calculate_available_dict(
-                    self.current_player.net.send({
-                        "action": "get_announcement"
-                    })
+                    self.socket_get_announcement()
                 )
             )
-            self.current_state = "render_announcements_modal"
+            self.set_current_state("render_announcements_modal")
+        self.load_time_remaining_bar()
 
     def render_announcements_modal(self, event_list):
-        pass_list_len = self.current_player.net.send({
-            "action": "get_pass_list_len"
-        })
+        pass_list_len = self.socket_get_pass_list_len()
         if pass_list_len == 4:
-            self.current_state = "render_game"
+            self.set_current_state("render_game")
             self.announcements_done = True
             return
         self.render_cards()
@@ -122,54 +131,43 @@ class AnnouncementsClient(Game, AnnouncementClientConnector):
 
         is_clicked = self.announcements_modal.click_event_listener(event_list)
         if is_clicked:
-            self.current_player.net.send({
-                "action": "set_announcement",
-                "params": {
-                    "announcement": self.announcements_modal.announced_game
-                }
-            })
-            self.current_state = "render_announcements_modal"
+            self.socket_set_announcement(self.announcements_modal.announced_game)
+            self.set_current_state("render_announcements_modal")
             return
+        self.load_time_remaining_bar()
 
-        response = self.current_player.net.send({
-            "action": "loading_bar"
-        })
+    def load_time_remaining_bar(self):
+        response = self.socket_get_loading_bar_info()
         position = response["data"]["position"]
         counter = response["data"]["counter"]
         self.time_remaining_bar.draw(self.screen, counter / 100, position)
         if self.time_remaining_bar.time_is_up(counter / 100):
-            self.current_player.net.send({
-                "action": "set_announcement",
-                "params": {
-                    "announcement": self.announcements_modal.announced_game
-                }
-            })
+            self.socket_set_announcement(self.announcements_modal.announced_game)
 
     def calculate_available_dict(self, top_argument):
         return {}
 
 
 class DealCardsClientConnector(ClientConnector):
-    pass
+    def socket_deal_cards(self, wanted_cards):
+        return self.send("deal_cards", params={"wanted_cards": wanted_cards})
 
 
 class DealCardsClient(Game, DealCardsClientConnector):
+    FIRST_ROW_CARDS_MAX_LEN = 20
+    SECOND_ROW_CARDS_MAX_LEN = 32
+
     def render_game(self, event_list):
-        if len(self.cards) == 32:
-            self.current_state = "gameplay"
+        if len(self.cards) == self.SECOND_ROW_CARDS_MAX_LEN:
+            self.set_current_state("gameplay")
             return
-        elif len(self.cards) == 20 and not self.announcements_done:
-            self.current_state = "announcements"
+        elif len(self.cards) == self.FIRST_ROW_CARDS_MAX_LEN and not self.announcements_done:
+            self.set_current_state("announcements")
             return
-        response = self.current_player.net.send({
-            "action": "deal_cards",
-            "params": {
-                "wanted_cards": self.calculate_wanted_cards()
-            }
-        })
+        response = self.socket_deal_cards(self.calculate_wanted_cards())
         all_cards = response["data"]
         self.add_cards(all_cards)
-        self.current_state = "animation"
+        self.set_current_state("animation")
 
     def add_cards(self, all_cards):
         for card in all_cards:
@@ -192,7 +190,7 @@ class DealCardsClient(Game, DealCardsClientConnector):
                 card.calculate_destination_of_movement()
                 if card.on_wanted_position():
                     card.given = True
-                    self.current_state = "render_game"
+                    self.set_current_state("render_game")
             card.blit(self.screen)
 
 
@@ -201,7 +199,8 @@ class BoardClientConnector(ClientConnector):
 
 
 class BoardClient(Game, BoardClientConnector):
-    pass
+    def gameplay(self, event_list):
+        self.render_cards()
 
 
 class MainClient(PreloadClient, AnnouncementsClient, DealCardsClient):

@@ -31,7 +31,7 @@ class AnnounceModal(pygame.sprite.Group):
         pygame.sprite.Group.__init__(self, [])
         self.announced_game = None
 
-    def toggle_modal(self, available_dict):
+    def load(self, available_dict):
         self.empty()
         r = pygame.Rect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4)
         r.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)

@@ -11,7 +11,8 @@ WIDTH, HEIGHT = get_screen_size()
 
 class BelotServerEngine:
     def __init__(self):
-        self.players = deque()  # the first one will give the cards
+        self.players = deque()
+        self.sockets_connected = 0  # the first one will give the cards
 
     def accept_player_connection(self, data, connection=None):
         player = SimplePlayer(data["name"], connection)
@@ -50,6 +51,15 @@ class BelotServerEngine:
 
     def make_shift(self):
         self.players.append(self.players.popleft())
+
+    def get_index_of_player_by_connection(self, players_array, connection):
+        for index in range(len(players_array)):
+            player = players_array[index]
+            if player.connection == connection:
+                return index
+
+    def get_player_by_connection(self, players_array, connection):
+        return players_array[self.get_index_of_player_by_connection(players_array, connection)]
 
 
 class DealCardsHandler(BelotServerEngine):
@@ -128,6 +138,9 @@ class AnnouncementsHandler(BelotServerEngine):
         super().__init__()
         self.players_announcements_order = None
         self.sockets_connected = 0
+        self.announced_game = None
+        self.bar_counter = 100
+        self.pass_counter = 0
 
     def set_players_announcements_order_deque(self):
         self.sockets_connected += 1
@@ -138,13 +151,48 @@ class AnnouncementsHandler(BelotServerEngine):
                 self.sockets_connected = 0
                 self.players_announcements_order.append(self.players_announcements_order.popleft())
 
+    def get_announcement(self, connection=None):
+        return self.announced_game
+
+    def set_announcement(self, data, connection=None):
+        current_announcement = data["announced_game"]
+        self.set_pass_counter(current_announcement)
+        if self.raised_announcement(current_announcement):
+            self.announced_game = current_announcement
+
+    def raised_announcement(self, current_announcement):
+        pass
+
+    def set_pass_counter(self, announcement, connection=None):
+        if announcement == "Pass":
+            self.pass_counter += 1
+        else:
+            self.pass_counter = 0
+
+    def get_pass_counter(self, connection=None):
+        return self.pass_counter
+
+    def get_loading_bar_info(self, connection):
+        self.sockets_connected += 1
+        if self.sockets_connected == 1:
+            self.bar_counter += 1
+        elif self.sockets_connected == 4:
+            self.sockets_connected = 0
+        index = self.get_index_of_player_by_connection(self.players_announcements_order, connection)
+        dest_dict = {
+            0: (WIDTH / 2, HEIGHT - WIDTH / 12),
+            90: (WIDTH - WIDTH / 12, HEIGHT / 2),
+            180: (WIDTH / 2, 0 + WIDTH / 12),
+            270: (0 + WIDTH / 12, HEIGHT / 2)
+        }
+
+        return {
+            "counter": self.bar_counter,
+            "position": dest_dict[index * 90]
+        }
+
     def check_announcements_order(self, connection=None):
         self.set_players_announcements_order_deque()
         player_on_move = self.players_announcements_order[0]
-        connected_player = self.get_player_by_connection(connection)
+        connected_player = self.get_player_by_connection(self.players_announcements_order, connection)
         return player_on_move == connected_player
-
-    def get_player_by_connection(self, connection):
-        for player in self.players_announcements_order:
-            if player.connection == connection:
-                return player
