@@ -107,6 +107,11 @@ class AnnouncementsClient(Game, AnnouncementClientConnector):
         self.announcements_done = False
 
     def announcements(self, event_list):
+        pass_list_len = self.socket_get_pass_list_len()["data"]
+        if pass_list_len == 4:
+            self.set_current_state("render_game")
+            self.announcements_done = True
+            return
         self.render_cards()
         response = self.socket_check_announcements_order()
         on_move = response["data"]
@@ -121,18 +126,14 @@ class AnnouncementsClient(Game, AnnouncementClientConnector):
         self.load_time_remaining_bar()
 
     def render_announcements_modal(self, event_list):
-        pass_list_len = self.socket_get_pass_list_len()
-        if pass_list_len == 4:
-            self.set_current_state("render_game")
-            self.announcements_done = True
-            return
         self.render_cards()
         self.announcements_modal.draw(self.screen)
 
         is_clicked = self.announcements_modal.click_event_listener(event_list)
         if is_clicked:
+
             self.socket_set_announcement(self.announcements_modal.announced_game)
-            self.set_current_state("render_announcements_modal")
+            self.set_current_state("announcements")
             return
         self.load_time_remaining_bar()
 
@@ -142,9 +143,10 @@ class AnnouncementsClient(Game, AnnouncementClientConnector):
         counter = response["data"]["counter"]
         self.time_remaining_bar.draw(self.screen, counter / 100, position)
         if self.time_remaining_bar.time_is_up(counter / 100):
-            self.socket_set_announcement(self.announcements_modal.announced_game)
+            self.socket_set_announcement("Pass")
 
     def calculate_available_dict(self, top_argument):
+        available_array = []
         return {}
 
 
@@ -203,7 +205,7 @@ class BoardClient(Game, BoardClientConnector):
         self.render_cards()
 
 
-class MainClient(PreloadClient, AnnouncementsClient, DealCardsClient):
+class MainClient(PreloadClient, AnnouncementsClient, DealCardsClient, BoardClient):
     def run(self):
 
         running = True

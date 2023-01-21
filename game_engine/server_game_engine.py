@@ -143,18 +143,14 @@ class AnnouncementsHandler(BelotServerEngine):
         self.pass_counter = 0
 
     def set_players_announcements_order_deque(self):
-        self.sockets_connected += 1
         if self.players_announcements_order is None:
             self.players_announcements_order = deque(self.players.copy())
-        else:
-            if self.sockets_connected == 4:
-                self.sockets_connected = 0
-                self.players_announcements_order.append(self.players_announcements_order.popleft())
 
     def get_announcement(self, connection=None):
         return self.announced_game
 
     def set_announcement(self, data, connection=None):
+        self.players_announcements_order.append(self.players_announcements_order.popleft())
         current_announcement = data["announced_game"]
         self.set_pass_counter(current_announcement)
         if self.raised_announcement(current_announcement):
@@ -163,7 +159,7 @@ class AnnouncementsHandler(BelotServerEngine):
     def raised_announcement(self, current_announcement):
         pass
 
-    def set_pass_counter(self, announcement, connection=None):
+    def set_pass_counter(self, announcement):
         if announcement == "Pass":
             self.pass_counter += 1
         else:

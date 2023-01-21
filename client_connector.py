@@ -5,13 +5,9 @@ class ClientConnector:
     def send(self, action, params=None):
         if params:
             return self.current_player.net.send({
-                "action" : action,
-                "params" : params
+                "action": action,
+                "params": params
             })
         return self.current_player.net.send({
             "action": action,
         })
-
-
-
-
