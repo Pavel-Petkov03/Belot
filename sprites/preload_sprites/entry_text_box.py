@@ -1,6 +1,6 @@
 import pygame
 
-from sprites.entry_text_box.text_box_base import TextBox
+from sprites.preload_sprites.text_box_base import TextBox
 
 
 class EntryTextBox(TextBox):
@@ -19,4 +19,4 @@ class EntryTextBox(TextBox):
                 else:
                     if len(self.text) <= 10:
                         self.text += event.unicode
-                self.render_text((5, 5))
+                self.render_text()
