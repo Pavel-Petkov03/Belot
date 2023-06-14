@@ -4,10 +4,6 @@ from sprites.preload_sprites.all_text_boxes import AllBoxes
 from sprites.preload_sprites.text_box_base import TextBox
 
 
-class TextBoxesGroup:
-    pass
-
-
 class PreloadClient(Game, PreloadClientConnector):
     MAX_PLAYERS = 4
 

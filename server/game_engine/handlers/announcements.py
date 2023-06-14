@@ -1,19 +1,32 @@
 from collections import deque
 
 from server.game_engine.handlers.base import BelotServerEngine
-from utils.variables.contants import WINDOW_WIDTH, WINDOW_HEIGHT
+from utils.variables.contants import DESTINATION_DICT
+
+
+class Counter:
+    def __init__(self, counter_start_value=0):
+        self.sockets_connected = 0
+        self.counter = counter_start_value
+
+    def increase(self):
+        self.sockets_connected += 1
+        if self.sockets_connected == 1:
+            self.counter += 1
+        elif self.sockets_connected == 4:
+            self.sockets_connected = 0
 
 
 class AnnouncementsHandler(BelotServerEngine):
     def __init__(self):
         super().__init__()
         self.players_announcements_order = None
-        self.sockets_connected = 0
         self.announced_game = None
-        self.bar_counter = 100
+        self.bar_counter = Counter(100)
         self.pass_counter = 0
         self.top_announcer = None
         self.points_multiply_coefficient = 1
+        self.announcement_popup_counter = Counter()
 
     def set_players_announcements_order_deque(self):
         if self.players_announcements_order is None:
@@ -34,6 +47,7 @@ class AnnouncementsHandler(BelotServerEngine):
         self.set_pass_counter(current_announcement)
 
     def set_announcement_algo(self, announced_game):
+        self.announcement_popup_counter.counter = 0
         announce_array = ["Pass", "Clubs", "Diamonds", "Hearts", "Spades", "No Trumps", "All Trumps"]
         if announced_game in announce_array:
             self.announced_game = announced_game
@@ -53,26 +67,30 @@ class AnnouncementsHandler(BelotServerEngine):
         return self.pass_counter
 
     def get_loading_bar_info(self, connection):
-        self.sockets_connected += 1
-        if self.sockets_connected == 1:
-            self.bar_counter += 1
-        elif self.sockets_connected == 4:
-            self.sockets_connected = 0
-        index = self.get_index_of_player_by_connection(self.players_announcements_order, connection)
-        dest_dict = {
-            0: (WINDOW_WIDTH / 2, WINDOW_HEIGHT - WINDOW_WIDTH / 12),
-            90: (WINDOW_WIDTH - WINDOW_WIDTH / 12, WINDOW_HEIGHT / 2),
-            180: (WINDOW_WIDTH / 2, 0 + WINDOW_WIDTH / 12),
-            270: (0 + WINDOW_WIDTH / 12, WINDOW_HEIGHT / 2)
-        }
+        self.bar_counter.increase()
 
         return {
-            "counter": self.bar_counter,
-            "position": dest_dict[index * 90]
+            "counter": self.bar_counter.counter,
+            "position": self.get_position_of_player(connection)
         }
+
+    def get_announcements_popup_info(self, connection):
+        self.announcement_popup_counter.increase()
+
+        return {
+            "counter": self.announcement_popup_counter.counter,
+            "position": self.get_position_of_player(connection)
+        }
+
+    def get_position_of_player(self, connection):
+        index = self.get_index_of_player_by_connection(self.players_announcements_order, connection)
+        return DESTINATION_DICT[index * 90]
 
     def check_announcements_order(self, connection=None):
         self.set_players_announcements_order_deque()
         player_on_move = self.players_announcements_order[0]
         connected_player = self.get_player_by_connection(self.players_announcements_order, connection)
         return player_on_move == connected_player
+
+    def announcements_popup_on_render(self, connection=None):
+        pass

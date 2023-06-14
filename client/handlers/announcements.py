@@ -1,6 +1,7 @@
 from client.connectors.announcements import AnnouncementClientConnector
 from client.handlers.base import Game
 from sprites.announcements.announce_modal import AnnounceModal
+from sprites.announcements.announcement_popup import AnnouncementPopup
 from sprites.loading_bar import TimeRemainingBar
 
 
@@ -10,14 +11,20 @@ class AnnouncementsClient(Game, AnnouncementClientConnector):
         self.announcements_modal = AnnounceModal()
         self.time_remaining_bar = TimeRemainingBar()
         self.announcements_done = False
+        self.announcements_popup = None
 
     def announcements(self, event_list):
+        self.render_cards()
+        if self.announcements_popup and self.socket_announcements_popup_on_render()["data"]["on_render"]:
+            announcements_popup_counter = self.socket_get_announcements_popup_info()["data"]["counter"]
+            self.announcements_popup.draw(self.screen)
+            return
+
         pass_list_len = self.socket_get_pass_list_len()["data"]
         if pass_list_len == 4:
             self.set_current_state("render_game")
             self.announcements_done = True
             return
-        self.render_cards()
         response = self.socket_check_announcements_order()
         on_move = response["data"]
 
@@ -38,6 +45,12 @@ class AnnouncementsClient(Game, AnnouncementClientConnector):
         if is_clicked:
             self.socket_set_announcement(self.announcements_modal.announced_game)
             self.set_current_state("announcements")
+            data = self.socket_get_announcements_popup_info()["data"]
+            position = data["position"]
+            self.announcements_popup = AnnouncementPopup(
+                *position, 200, 200, text=self.announcements_modal.announced_game, font_size=50, font="Sans Serif",
+                backcolor="green"
+            )
             return
         self.load_time_remaining_bar()
 

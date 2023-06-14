@@ -16,3 +16,9 @@ class AnnouncementClientConnector(ClientConnector):
 
     def socket_get_loading_bar_info(self):
         return self.send("get_loading_bar_info")
+
+    def socket_get_announcements_popup_info(self):
+        return self.send("get_announcements_popup_info")
+
+    def socket_announcements_popup_on_render(self):
+        return self.send("announcements_popup_on_render")
